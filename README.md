@@ -1,0 +1,1 @@
+Gaibu means 'external' in Japanese.
