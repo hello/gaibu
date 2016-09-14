@@ -22,6 +22,21 @@
     <slf4j.version>1.7.12</slf4j.version>
   </properties>
 
+  <distributionManagement>
+    <site>
+      <id>s3.site</id>
+      <url>s3://hello-maven/site</url>
+    </site>
+    <repository>
+      <id>s3.release</id>
+      <url>s3://hello-maven/release</url>
+    </repository>
+    <snapshotRepository>
+      <id>s3.snapshot</id>
+      <url>s3://hello-maven/snapshot</url>
+    </snapshotRepository>
+  </distributionManagement>
+
   <dependencies>
     <dependency>
       <groupId>junit</groupId>
