@@ -1,0 +1,29 @@
+language: java
+jdk:
+- oraclejdk8
+sudo: false
+install: mvn --version
+env:
+  global:
+  - APP_NAME=gaibu
+  - BUILD_NUMBER=0.1.$TRAVIS_BUILD_NUMBER
+  - secure: qESpMrxwv6EAWe8Thsw0EkFMsnO7ueHyo6ZVqVJ1kwINk/nfpL1P7gMLA1kh5/nGZWBuyT9sbEGQyBkANd4NrDM0fhsLoB6qF9QxlT32An+l2h6W1w6Oy6rFWQV53tCRzRN5aM7n1Ltb8AdlG+drYAuuR4+XmNBkOW6ACNEuspc732ix0Tb5BxIbfRnGpir81DIOwbay1zOYHELi/3jGZgE3K6aHHYEf1eCEVY4AoXbtpEmoH/nd198BhgKz+NfLmJGV2xRFswBN38PlEjzySYmeszI3SvA0NfgXE9nVrAtnzTnnJmDRb6l2FypMEDL5EvLStbYFS/Rz9LzjNP/N28y/2d7L45cE6wbYWPQhcREfzZ+1Jdp0njyRmGLt8l8Mlw0JxvcMf3ZlUxh3Sh5Uad6yY9Y9Q59feC7oRYipk4lYyaMn3oFKRGIZaBcZg58F/YRpX7w8ChO+FFzpGKgGLWCU7oLwa9JBuQ5O2Uvg9kUe31S6dvi+Zcffn2SS+H0ALEJXOMspcCnYgIXaUJehzD464E+i/JNA6Js4bvJAy/TVVQhMZOjY3AN/cLbjt9NDNiweMU8jAQMJ13bxnX348EZT4BZa8PCvskcDjKE+hXuvcS4AVNdvRR8fjW3pduoTChobYOZRg5RHi3NnbCnCtaW1DM9Iv9aR14NqFG84DaI=
+  - secure: BeM8N4Uj5qbLLGN9aeK/kaZs087LCPFM4RnOYXFJCy/AM2Zr+LozWkZJtEib4so+1DdL0uHRVvFhqGSLtYIHD0w0Zf3zB+D/JFmU4xdgZakrgN7iww6GFq5A+ehTHiw02dCHlqpFmnSG+rIkq7bB0NsVIDQcTDOX8CbCGjfBOlEBSJAgdRvJ90xUpNmC51dLMmDipzDvgVtnkUjCI2Et2coY8zk56RY0b2qG/UBr7UJR/nMgL1n6/8SwTKXUenwhsQTlGeGRC6Dznxe/r8VaVAmxQQDVte7i5N71KAnfm/d9ixNolgDR9HB7GbGbGVqq3LmdbqcfZ7UlUE6qQicqgFWA7tNHI6tW+UByD0H7oBNznni4/GSHkyJzRM50iQ8sQWlYAxrS8hbPPGUPgCDv1r6D4hpT9t6pCQq+jfvBFrO11vWz0ubjsAls2lqoIdOLOW8KgCukT7Jbtm5ocEo4ae+IySpjoMVUj3mzhC8xAx/BcMZAJy1dE2Qnh5dRS91iDQ8ShWXbvmnVS+uAX1mqKH2tFr4zyRDaMuCalRAXlJ+5BihI+9pwLzY7BTXsnC8mb0KZSqmeC7tnN2hHGRPKf1P3ZidGWlfu4et6aHWn9w4tvthWP+zSS5E2nlymaGiRHYI9M/czc8JmX8xiyZyuSYP3cUrFip6+nncEDuqbD0E=
+script:
+- if [ $TRAVIS_PULL_REQUEST != 'false' ]; then BUILD_NUMBER=${BUILD_NUMBER}-SNAPSHOT;
+  fi
+- mvn clean
+- mvn versions:set -DnewVersion=$BUILD_NUMBER
+- mvn versions:commit
+- mvn --settings settings.xml -DskipITs deploy
+after_script:
+- if [ $TRAVIS_PULL_REQUEST = 'false' ]; then git config --global user.email "builds@travis-ci.com";
+  git config --global user.name "Travis CI"; export GIT_TAG=$APP_NAME-$BUILD_NUMBER;
+  git tag $GIT_TAG -a -m "Generated tag from TravisCI build $TRAVIS_BUILD_NUMBER";
+  git push --quiet git@github.com:hello/gaibu.git --tags; fi
+branches:
+  only:
+  - master
+notifications:
+  email:
+  - infra@sayhello.com
