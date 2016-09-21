@@ -19,6 +19,9 @@ public class ExternalApplication {
     @JsonProperty("client_secret")
     public final String clientSecret;
 
+    @JsonProperty("api_uri")
+    public final String apiURI;
+
     @JsonProperty("auth_uri")
     public final String authURI;
 
@@ -39,6 +42,7 @@ public class ExternalApplication {
             final String name,
             final String clientId,
             final String clientSecret,
+            final String apiURI,
             final String authURI,
             final String tokenURI,
             final String description,
@@ -49,6 +53,7 @@ public class ExternalApplication {
         this.name = name;
         this.clientId = clientId;
         this.clientSecret = clientSecret;
+        this.apiURI = apiURI;
         this.authURI = authURI;
         this.tokenURI = tokenURI;
         this.description = description;
