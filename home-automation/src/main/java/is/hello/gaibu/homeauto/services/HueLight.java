@@ -6,6 +6,9 @@ import com.google.common.collect.Maps;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -22,7 +25,8 @@ import is.hello.gaibu.homeauto.interfaces.ColoredLight;
 /**
  * Created by jnorgan on 8/24/16.
  */
-public class HueLight implements ColoredLight{
+public class HueLight implements ColoredLight {
+  private static final Logger LOGGER = LoggerFactory.getLogger(HueLight.class);
 
   private String accessToken;
   private String apiPath;
@@ -43,13 +47,21 @@ public class HueLight implements ColoredLight{
 
     apiEndpoint = "bridges/" + bridgeId + "/" + whitelistId + "/lights/1/state";
     if(groupId > 0) {
-      apiEndpoint = "bridges/" + bridgeId + "/" + whitelistId + "/groups/" + groupId + "/action";
+      apiEndpoint = "bridges/" + bridgeId + "/" + whitelistId + "/groups/" + this.groupId + "/action";
     }
 
   }
 
   public HueLight(final String apiPath, final String accessToken, final String bridgeId, final String whitelistId) {
     this(apiPath, accessToken, bridgeId, whitelistId, 0);
+  }
+
+  public HueLight(final String accessToken) {
+    this(DEFAULT_API_PATH, accessToken, "", "", 0);
+  }
+
+  public HueLight(final String accessToken, final String bridgeId) {
+    this(DEFAULT_API_PATH, accessToken, bridgeId, "", 0);
   }
 
   public void setColor() {
@@ -90,15 +102,15 @@ public class HueLight implements ColoredLight{
   public String getGroups() {
     final Optional<String> response = getData(DEFAULT_API_PATH + "bridges/" + bridgeId + "/" + whitelistId + "/groups", accessToken);
     if(!response.isPresent()) {
-      System.out.printf("Error getting bridges");
+      LOGGER.error("error=get-groups-failure");
     }
     return response.get();
   }
 
-  public static String getBridge(final String accessToken) {
+  public String getBridge(final String accessToken) {
     final Optional<String> response = getData(DEFAULT_API_PATH + "bridges", accessToken);
     if(!response.isPresent()) {
-      System.out.printf("Error getting bridges");
+      LOGGER.error("error=get-bridges-failure");
     }
     final Gson gson = new Gson();
     final Type collectionType = new TypeToken<List<Map<String, String>>>(){}.getType();
@@ -106,7 +118,7 @@ public class HueLight implements ColoredLight{
     return responseArray.get(0).get("id");
   }
 
-  public static Optional<String> getWhitelistId(final String bridgeId, final String accessToken) {
+  public Optional<String> getWhitelistId(final String bridgeId, final String accessToken) {
 
     //Do PUT request to set linkbutton state
     final Map<String, Boolean> data = Maps.newHashMap(ImmutableMap.of("linkbutton", true));
@@ -119,7 +131,7 @@ public class HueLight implements ColoredLight{
     final Optional<String> response = postData(DEFAULT_API_PATH + "bridges/" + bridgeId + "/", accessToken, whitelistData);
 
     if(!response.isPresent()) {
-      System.out.printf("Error getting whitelist ID");
+      LOGGER.error("error=get-whitelist-failure");
     }
 
     final Type collectionType = new TypeToken<List<Map<String, Map<String,String>>>>(){}.getType();
@@ -137,7 +149,7 @@ public class HueLight implements ColoredLight{
   }
 
 
-  public static Optional<String> getData(final String url, final String accessToken) {
+  private Optional<String> getData(final String url, final String accessToken) {
     try {
       final URL uri = new URL(url);
       final HttpURLConnection connection = (HttpURLConnection) uri.openConnection();
@@ -157,13 +169,13 @@ public class HueLight implements ColoredLight{
       return com.google.common.base.Optional.absent();
 
     }catch (Exception ex) {
-      System.out.printf("Connect Exception: %s", ex.getMessage());
+      LOGGER.error("error=get-data-failure");
     }
 
     return Optional.absent();
   }
 
-  public static Optional<String> putData(final String url, final String accessToken, final String data) {
+  private Optional<String> putData(final String url, final String accessToken, final String data) {
     try {
       final URL uri = new URL(url);
       final HttpURLConnection connection = (HttpURLConnection)uri.openConnection();
@@ -184,13 +196,13 @@ public class HueLight implements ColoredLight{
       return Optional.of(result);
 
     } catch (Exception ex) {
-      System.out.printf("Failed to Put Data %s", ex.getMessage());
+      LOGGER.error("error=put-data-failure message={}", ex.getMessage());
     }
 
     return Optional.absent();
   }
 
-  public static Optional<String> postData(final String url, final String accessToken, final String data) {
+  private Optional<String> postData(final String url, final String accessToken, final String data) {
     try {
       final URL uri = new URL(url);
       final HttpURLConnection connection = (HttpURLConnection)uri.openConnection();
@@ -211,13 +223,13 @@ public class HueLight implements ColoredLight{
       return Optional.of(result);
 
     } catch (Exception ex) {
-      System.out.printf("Failed to POST Data %s", ex.getMessage());
+      LOGGER.error("error=post-data-failure message={}", ex.getMessage());
     }
 
     return Optional.absent();
   }
 
-  public static String readInputStream(final InputStream content) {
+  private String readInputStream(final InputStream content) {
     try {
       final BufferedReader reader = new BufferedReader(new InputStreamReader(content, "UTF-8"));
       final StringBuilder sb = new StringBuilder();
@@ -234,7 +246,7 @@ public class HueLight implements ColoredLight{
 
       return sb.toString();
     }catch (Exception ex) {
-      System.out.printf("InputStream exception message=%s", ex.getMessage());
+      LOGGER.error("error=inputstream-read-failure message={}", ex.getMessage());
     }
     return "";
   }
