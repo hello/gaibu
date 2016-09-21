@@ -12,6 +12,7 @@
     <module>music</module>
     <module>trivia</module>
     <module>gaibu-core</module>
+    <module>examples</module>
   </modules>
   <packaging>pom</packaging>
 
