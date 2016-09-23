@@ -53,7 +53,7 @@ public class DarkSky implements WeatherReport {
         try {
             final Response<DarkSkyResponse> response = call.execute();
             final DarkSkyResponse resp = response.body();
-            return resp.hourly().summary();
+            return resp.daily().summary();
         } catch (IOException e) {
             System.out.println(e.getMessage());
         }
