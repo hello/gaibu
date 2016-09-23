@@ -5,18 +5,18 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import is.hello.gaibu.weather.core.darksky.Summary;
 
 public class DarkSkyResponse {
-    final Summary hourly;
+    final Summary daily;
 
-    private DarkSkyResponse(Summary hourly) {
-        this.hourly = hourly;
+    private DarkSkyResponse(Summary daily) {
+        this.daily = daily;
     }
 
     @JsonCreator
-    public static DarkSkyResponse create(@JsonProperty("hourly") Summary hourly) {
-        return new DarkSkyResponse(hourly);
+    public static DarkSkyResponse create(@JsonProperty("daily") Summary daily) {
+        return new DarkSkyResponse(daily);
     }
 
-    public Summary hourly() {
-        return hourly;
+    public Summary daily() {
+        return daily;
     }
 }
