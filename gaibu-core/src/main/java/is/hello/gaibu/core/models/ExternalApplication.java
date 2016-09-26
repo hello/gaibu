@@ -37,6 +37,9 @@ public class ExternalApplication {
     @JsonIgnore
     public final Integer grantType;
 
+    @JsonProperty("category")
+    public final Category category;
+
     public ExternalApplication(
             final Long id,
             final String name,
@@ -47,7 +50,8 @@ public class ExternalApplication {
             final String tokenURI,
             final String description,
             final DateTime created,
-            final Integer grantType
+            final Integer grantType,
+            final Category category
     ) {
         this.id = id;
         this.name = name;
@@ -59,6 +63,38 @@ public class ExternalApplication {
         this.description = description;
         this.created = created;
         this.grantType = grantType;
+        this.category = category;
     }
 
+    public enum Category {
+        LIGHT("light"),
+        MUSIC("music"),
+        NEWS("news"),
+        TEMPERATURE("temperature"),
+        TRIVIA("trivia"),
+        WEATHER("weather");
+
+
+        private String value;
+
+        Category(String value) {
+            this.value = value;
+        }
+
+        @Override
+        public String toString() {
+            return value;
+        }
+
+        public static Category fromString(final String text) {
+            if (text != null) {
+                for (final Category cat : Category.values()) {
+                    if (text.equalsIgnoreCase(cat.toString())) {
+                        return cat;
+                    }
+                }
+            }
+            throw new IllegalArgumentException();
+        }
+    }
 }

@@ -24,7 +24,8 @@ public class ExternalApplicationMapper implements ResultSetMapper<ExternalApplic
                 r.getString("token_uri"),
                 r.getString("description"),
                 new DateTime(r.getTimestamp("created")),
-                r.getInt("grant_type")
+                r.getInt("grant_type"),
+                ExternalApplication.Category.fromString(r.getString("category"))
         );
     }
 }
