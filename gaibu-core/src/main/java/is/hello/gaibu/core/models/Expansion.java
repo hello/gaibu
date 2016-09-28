@@ -92,6 +92,11 @@ public class Expansion
             created = DateTime.now(DateTimeZone.UTC);
         }
 
+        public Expansion.Builder withId(final Long id) {
+            this.id = id;
+            return this;
+        }
+
         public Builder withCreated(final DateTime created) {
             this.created = created;
             return this;
