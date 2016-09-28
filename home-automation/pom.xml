@@ -12,6 +12,11 @@
 
     <dependencies>
         <dependency>
+            <groupId>is.hello.gaibu</groupId>
+            <artifactId>gaibu-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
             <version>2.2.2</version>

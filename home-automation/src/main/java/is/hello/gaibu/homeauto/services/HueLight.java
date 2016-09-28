@@ -2,6 +2,7 @@ package is.hello.gaibu.homeauto.services;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -19,13 +20,16 @@ import java.net.URL;
 import java.util.List;
 import java.util.Map;
 
+import is.hello.gaibu.core.models.Configuration;
 import is.hello.gaibu.homeauto.interfaces.ColoredLight;
+import is.hello.gaibu.homeauto.interfaces.HomeAutomationExpansion;
+import is.hello.gaibu.homeauto.models.HueGroup;
 
 
 /**
  * Created by jnorgan on 8/24/16.
  */
-public class HueLight implements ColoredLight {
+public class HueLight implements ColoredLight, HomeAutomationExpansion {
   private static final Logger LOGGER = LoggerFactory.getLogger(HueLight.class);
 
   private String accessToken;
@@ -249,5 +253,22 @@ public class HueLight implements ColoredLight {
       LOGGER.error("error=inputstream-read-failure message={}", ex.getMessage());
     }
     return "";
+  }
+
+  @Override
+  public List<Configuration> getConfigurations() {
+    final String groupsJson = getGroups();
+    final Gson gson = new Gson();
+    final Type collectionType = new TypeToken<Map<String, HueGroup>>(){}.getType();
+    final Map<String, HueGroup> groupsMap = gson.fromJson(groupsJson, collectionType);
+
+    final List<Configuration> configs = Lists.newArrayList();
+    for(final Map.Entry<String, HueGroup> entry : groupsMap.entrySet()) {
+      LOGGER.debug("{} = {}", entry.getKey(), entry.getValue().name);
+      final Configuration groupConfig = new Configuration(entry.getKey(), entry.getValue().name);
+      configs.add(groupConfig);
+    }
+
+    return configs;
   }
 }

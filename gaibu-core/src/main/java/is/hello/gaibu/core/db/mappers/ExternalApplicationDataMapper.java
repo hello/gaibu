@@ -21,7 +21,8 @@ public class ExternalApplicationDataMapper implements ResultSetMapper<ExternalAp
             r.getString("device_id"),
             r.getString("data"),
             new DateTime(r.getTimestamp("created_at"), DateTimeZone.UTC),
-            new DateTime(r.getTimestamp("updated_at"), DateTimeZone.UTC)
+            new DateTime(r.getTimestamp("updated_at"), DateTimeZone.UTC),
+            r.getBoolean("enabled")
         );
     }
 }

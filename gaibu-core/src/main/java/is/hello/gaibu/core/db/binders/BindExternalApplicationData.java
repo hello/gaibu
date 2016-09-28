@@ -28,6 +28,7 @@ public @interface BindExternalApplicationData {
                         q.bind("data", arg.data);
                         q.bind("device_id", arg.deviceId);
                         q.bind("app_id", arg.appId);
+                        q.bind("enabled", arg.enabled);
                 }
             };
         }

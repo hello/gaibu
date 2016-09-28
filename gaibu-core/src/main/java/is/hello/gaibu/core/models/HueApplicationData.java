@@ -2,7 +2,7 @@ package is.hello.gaibu.core.models;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class HueApplicationData {
+public class HueApplicationData implements ApplicationData {
 
     @JsonProperty("bridge_id")
     public final String bridgeId;

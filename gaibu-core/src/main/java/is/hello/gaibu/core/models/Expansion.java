@@ -7,6 +7,17 @@ import org.joda.time.DateTimeZone;
 
 public class Expansion
 {
+    public enum ServiceName {
+        HUE("HUE"),
+        NEST("NEST");
+
+        private final String name;
+
+        ServiceName(final String name) {
+            this.name = name;
+        }
+
+    }
 
     @JsonProperty("id")
     public final Long id;
@@ -18,7 +29,7 @@ public class Expansion
     public final String deviceName;
 
     @JsonProperty("service_name")
-    public final String serviceName;
+    public final ServiceName serviceName;
 
     @JsonProperty("icon_uri")
     public final String iconURI;
@@ -39,7 +50,7 @@ public class Expansion
             final Long id,
             final ExternalApplication.Category category,
             final String deviceName,
-            final String serviceName,
+            final ServiceName serviceName,
             final String iconURI,
             final String authURI,
             final String completionURI,
@@ -70,7 +81,7 @@ public class Expansion
         private Long id;
         private ExternalApplication.Category category;
         private String deviceName;
-        private String serviceName;
+        private ServiceName serviceName;
         private String iconURI;
         private String authURI;
         private String completionURI;
@@ -95,7 +106,7 @@ public class Expansion
             return this;
         }
 
-        public Builder withServiceName(final String serviceName) {
+        public Builder withServiceName(final ServiceName serviceName) {
             this.serviceName = serviceName;
             return this;
         }

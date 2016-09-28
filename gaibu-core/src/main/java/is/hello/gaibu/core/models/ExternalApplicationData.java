@@ -25,13 +25,17 @@ public class ExternalApplicationData {
     @JsonProperty("updated_at")
     public final DateTime updated;
 
+    @JsonProperty("enabled")
+    public final Boolean enabled;
+
     public ExternalApplicationData(
             final Long id,
             final Long appId,
             final String deviceId,
             final String data,
             final DateTime created,
-            final DateTime updated
+            final DateTime updated,
+            final Boolean enabled
     ) {
         this.id = id;
         this.appId = appId;
@@ -39,6 +43,7 @@ public class ExternalApplicationData {
         this.data = data;
         this.created = created;
         this.updated = updated;
+        this.enabled = enabled;
     }
 
     public static class Builder {
@@ -48,12 +53,12 @@ public class ExternalApplicationData {
         private String data;
         private DateTime created;
         private DateTime updated;
+        private Boolean enabled;
 
         public Builder() {
             created = DateTime.now(DateTimeZone.UTC);
             updated = DateTime.now(DateTimeZone.UTC);
         }
-
 
         public Builder withCreated(final DateTime created) {
             this.created = created;
@@ -75,8 +80,13 @@ public class ExternalApplicationData {
             return this;
         }
 
+        public Builder withEnabled(final Boolean enabled) {
+            this.enabled = enabled;
+            return this;
+        }
+
         public ExternalApplicationData build() {
-            return new ExternalApplicationData(id, appId, deviceId, data, created, updated);
+            return new ExternalApplicationData(id, appId, deviceId, data, created, updated, enabled);
         }
     }
 }

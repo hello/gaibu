@@ -2,7 +2,7 @@ package is.hello.gaibu.core.models;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class NestApplicationData {
+public class NestApplicationData implements ApplicationData {
 
     @JsonProperty("thermostat_id")
     public final String thermostatId;
@@ -12,4 +12,5 @@ public class NestApplicationData {
     ) {
         this.thermostatId = thermostatId;
     }
+
 }

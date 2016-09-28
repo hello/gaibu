@@ -17,13 +17,13 @@ import is.hello.gaibu.core.models.ExternalApplicationData;
 public interface ExternalApplicationDataDAO {
 
     @SingleValueResult(ExternalApplicationData.class)
-    @SqlQuery("SELECT * FROM external_application_data WHERE app_id = :application_id AND device_id = :device_id")
+    @SqlQuery("SELECT * FROM external_application_data WHERE app_id = :application_id AND device_id = :device_id ORDER BY created_at DESC LIMIT 1")
     Optional<ExternalApplicationData> getAppData(@Bind("application_id") Long applicationId, @Bind("device_id") String deviceId);
 
-    @SqlUpdate("INSERT INTO external_application_data (app_id, device_id, data) VALUES (:app_id, :device_id, :data)")
+    @SqlUpdate("INSERT INTO external_application_data (app_id, device_id, data, enabled) VALUES (:app_id, :device_id, :data, :enabled)")
     void insertAppData(@BindExternalApplicationData ExternalApplicationData appData);
 
-    @SqlUpdate("UPDATE external_application_data SET data = :data WHERE app_id = :app_id AND device_id = :device_id")
+    @SqlUpdate("UPDATE external_application_data SET data = :data, enabled = :enabled WHERE app_id = :app_id AND device_id = :device_id")
     void updateAppData(@BindExternalApplicationData ExternalApplicationData appData);
 
 }
