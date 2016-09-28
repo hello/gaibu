@@ -5,12 +5,15 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class NestApplicationData implements ApplicationData {
 
     @JsonProperty("thermostat_id")
-    public final String thermostatId;
+    public String thermostatId;
 
-    public NestApplicationData(
-        @JsonProperty("thermostat_id") final String thermostatId
-    ) {
+    public NestApplicationData(@JsonProperty("thermostat_id") final String thermostatId) {
         this.thermostatId = thermostatId;
+    }
+
+    @Override
+    public void setId(String id) {
+        this.thermostatId = id;
     }
 
 }

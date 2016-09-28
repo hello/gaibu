@@ -31,12 +31,13 @@ public final class HomeAutomationExpansionFactory {
     return null; //TODO: DON'T RETURN NULL!!!!
   }
 
-  public static HomeAutomationExpansion getEmptyExpansion(final String expansionName, final String decryptedToken) {
+  public static HomeAutomationExpansion getEmptyExpansion(final String expansionName, final ApplicationData data, final String decryptedToken) {
     switch(Expansion.ServiceName.valueOf(expansionName.toUpperCase())) {
       case HUE:
-        return new HueLight(decryptedToken);
+        final HueApplicationData hueData = (HueApplicationData) data;
+        return new HueLight(HueLight.DEFAULT_API_PATH, decryptedToken, hueData.bridgeId, hueData.whitelistId, hueData.groupId);
       case NEST:
-        return new NestThermostat("", "", decryptedToken);
+        return new NestThermostat("", NestThermostat.DEFAULT_API_PATH, decryptedToken);
 
     }
     return null; //TODO: DON'T RETURN NULL!!!!

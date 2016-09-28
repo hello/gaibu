@@ -36,4 +36,15 @@ public final class ExpansionDataFactory {
     }
     return null; //TODO: DON'T RETURN NULL!!!!
   }
+
+  public static ApplicationData getEmptyAppData(final String expansionName) {
+    switch(Expansion.ServiceName.valueOf(expansionName.toUpperCase())) {
+      case HUE:
+        return new HueApplicationData("", "", 0);
+      case NEST:
+        return new NestApplicationData("");
+    }
+    return null;
+  }
+
 }

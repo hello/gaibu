@@ -11,7 +11,7 @@ public class HueApplicationData implements ApplicationData {
     public final String whitelistId;
 
     @JsonProperty("group_id")
-    public final Integer groupId;
+    public Integer groupId;
 
     public HueApplicationData(
         @JsonProperty("bridge_id") final String bridgeId,
@@ -21,5 +21,10 @@ public class HueApplicationData implements ApplicationData {
         this.bridgeId = bridgeId;
         this.whitelistId = whitelistId;
         this.groupId = groupId;
+    }
+
+    @Override
+    public void setId(String id) {
+        this.groupId = Integer.parseInt(id);
     }
 }
