@@ -35,7 +35,7 @@ public final class HomeAutomationExpansionFactory {
     switch(Expansion.ServiceName.valueOf(expansionName.toUpperCase())) {
       case HUE:
         final HueApplicationData hueData = (HueApplicationData) data;
-        return new HueLight(HueLight.DEFAULT_API_PATH, decryptedToken, hueData.bridgeId, hueData.whitelistId, hueData.groupId);
+        return new HueLight(HueLight.DEFAULT_API_PATH, decryptedToken, hueData.bridgeId, hueData.whitelistId);
       case NEST:
         return new NestThermostat("", NestThermostat.DEFAULT_API_PATH, decryptedToken);
 
