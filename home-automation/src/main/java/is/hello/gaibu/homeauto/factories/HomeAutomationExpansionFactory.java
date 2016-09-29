@@ -5,8 +5,8 @@ import org.slf4j.LoggerFactory;
 
 import is.hello.gaibu.core.models.ApplicationData;
 import is.hello.gaibu.core.models.Expansion;
-import is.hello.gaibu.core.models.HueApplicationData;
-import is.hello.gaibu.core.models.NestApplicationData;
+import is.hello.gaibu.homeauto.models.HueApplicationData;
+import is.hello.gaibu.homeauto.models.NestApplicationData;
 import is.hello.gaibu.homeauto.interfaces.HomeAutomationExpansion;
 import is.hello.gaibu.homeauto.services.HueLight;
 import is.hello.gaibu.homeauto.services.NestThermostat;

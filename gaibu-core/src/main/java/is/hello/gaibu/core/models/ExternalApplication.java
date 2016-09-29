@@ -28,6 +28,9 @@ public class ExternalApplication {
     @JsonProperty("token_uri")
     public final String tokenURI;
 
+    @JsonProperty("refresh_uri")
+    public final String refreshURI;
+
     @JsonProperty("description")
     public final String description;
 
@@ -48,6 +51,7 @@ public class ExternalApplication {
             final String apiURI,
             final String authURI,
             final String tokenURI,
+            final String refreshURI,
             final String description,
             final DateTime created,
             final Integer grantType,
@@ -60,6 +64,7 @@ public class ExternalApplication {
         this.apiURI = apiURI;
         this.authURI = authURI;
         this.tokenURI = tokenURI;
+        this.refreshURI = refreshURI;
         this.description = description;
         this.created = created;
         this.grantType = grantType;

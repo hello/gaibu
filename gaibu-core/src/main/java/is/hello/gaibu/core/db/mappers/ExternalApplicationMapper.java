@@ -22,6 +22,7 @@ public class ExternalApplicationMapper implements ResultSetMapper<ExternalApplic
                 r.getString("api_uri"),
                 r.getString("auth_uri"),
                 r.getString("token_uri"),
+                r.getString("refresh_uri"),
                 r.getString("description"),
                 new DateTime(r.getTimestamp("created")),
                 r.getInt("grant_type"),

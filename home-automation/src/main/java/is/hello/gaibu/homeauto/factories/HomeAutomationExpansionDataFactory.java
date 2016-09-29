@@ -1,4 +1,4 @@
-package is.hello.gaibu.core.factories;
+package is.hello.gaibu.homeauto.factories;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -9,14 +9,14 @@ import java.io.IOException;
 
 import is.hello.gaibu.core.models.ApplicationData;
 import is.hello.gaibu.core.models.Expansion;
-import is.hello.gaibu.core.models.HueApplicationData;
-import is.hello.gaibu.core.models.NestApplicationData;
+import is.hello.gaibu.homeauto.models.HueApplicationData;
+import is.hello.gaibu.homeauto.models.NestApplicationData;
 
 /**
  * Created by jnorgan on 9/27/16.
  */
-public final class ExpansionDataFactory {
-  private static final Logger LOGGER = LoggerFactory.getLogger(ExpansionDataFactory.class);
+public final class HomeAutomationExpansionDataFactory {
+  private static final Logger LOGGER = LoggerFactory.getLogger(HomeAutomationExpansionDataFactory.class);
 
 
   public static ApplicationData getAppData(final ObjectMapper mapper, final String data, final String expansionName) {

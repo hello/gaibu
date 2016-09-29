@@ -1,6 +1,8 @@
-package is.hello.gaibu.core.models;
+package is.hello.gaibu.homeauto.models;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+
+import is.hello.gaibu.core.models.ApplicationData;
 
 public class HueApplicationData implements ApplicationData {
 
