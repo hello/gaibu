@@ -31,8 +31,11 @@ public class Expansion
     @JsonProperty("service_name")
     public final ServiceName serviceName;
 
-    @JsonProperty("icon_uri")
-    public final String iconURI;
+    @JsonProperty("description")
+    public final String description;
+
+    @JsonProperty("icon")
+    public final MultiDensityImage icon;
 
     @JsonProperty("auth_uri")
     public final String authURI;
@@ -51,7 +54,8 @@ public class Expansion
             final ExternalApplication.Category category,
             final String deviceName,
             final ServiceName serviceName,
-            final String iconURI,
+            final String description,
+            final MultiDensityImage icon,
             final String authURI,
             final String completionURI,
             final State state,
@@ -62,7 +66,8 @@ public class Expansion
         this.category = category;
         this.deviceName = deviceName;
         this.serviceName = serviceName;
-        this.iconURI = iconURI;
+        this.description = description;
+        this.icon = icon;
         this.authURI = authURI;
         this.completionURI = completionURI;
         this.state = state;
@@ -82,7 +87,8 @@ public class Expansion
         private ExternalApplication.Category category;
         private String deviceName;
         private ServiceName serviceName;
-        private String iconURI;
+        private String description;
+        private MultiDensityImage icon;
         private String authURI;
         private String completionURI;
         private State state;
@@ -116,8 +122,13 @@ public class Expansion
             return this;
         }
 
-        public Builder withIconURI(final String iconURI) {
-            this.iconURI = iconURI;
+        public Builder withDescription(final String description) {
+            this.description = description;
+            return this;
+        }
+
+        public Builder withIcon(final MultiDensityImage icon) {
+            this.icon = icon;
             return this;
         }
 
@@ -137,7 +148,7 @@ public class Expansion
         }
 
         public Expansion build() {
-            return new Expansion(id, category, deviceName, serviceName, iconURI, authURI, completionURI, state, created);
+            return new Expansion(id, category, deviceName, serviceName, description, icon, authURI, completionURI, state, created);
         }
     }
 }

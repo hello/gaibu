@@ -69,7 +69,7 @@ public class PersistentExternalApplicationStore implements ExternalApplicationSt
     }
 
     public Optional<ExternalApplication> getApplicationByNameFromDB(final String applicationName) {
-        return applicationsDAO.getByName(applicationName);
+        return applicationsDAO.getByServiceName(applicationName);
     }
 
     @Override

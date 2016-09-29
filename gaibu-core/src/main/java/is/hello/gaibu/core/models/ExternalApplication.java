@@ -10,8 +10,11 @@ public class ExternalApplication {
     @JsonProperty("id")
     public final Long id;
 
-    @JsonProperty("name")
-    public final String name;
+    @JsonProperty("service_name")
+    public final String serviceName;
+
+    @JsonProperty("device_name")
+    public final String deviceName;
 
     @JsonProperty("client_id")
     public final String clientId;
@@ -45,7 +48,8 @@ public class ExternalApplication {
 
     public ExternalApplication(
             final Long id,
-            final String name,
+            final String serviceName,
+            final String deviceName,
             final String clientId,
             final String clientSecret,
             final String apiURI,
@@ -58,7 +62,8 @@ public class ExternalApplication {
             final Category category
     ) {
         this.id = id;
-        this.name = name;
+        this.serviceName = serviceName;
+        this.deviceName = deviceName;
         this.clientId = clientId;
         this.clientSecret = clientSecret;
         this.apiURI = apiURI;

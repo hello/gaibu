@@ -19,9 +19,9 @@ public interface ExternalApplicationsDAO {
     @SingleValueResult(ExternalApplication.class)
     Optional<ExternalApplication> getById(@Bind("id") Long applicationId);
 
-    @SqlQuery("SELECT * FROM external_oauth_applications WHERE name = :name")
+    @SqlQuery("SELECT * FROM external_oauth_applications WHERE service_name = :service_name")
     @SingleValueResult(ExternalApplication.class)
-    Optional<ExternalApplication> getByName(@Bind("name") String applicationName);
+    Optional<ExternalApplication> getByServiceName(@Bind("service_name") String expansionServiceName);
 
     @SqlQuery("SELECT * FROM external_oauth_applications WHERE client_id = :client_id")
     @RegisterMapper(ExternalApplicationMapper.class)

@@ -16,7 +16,8 @@ public class ExternalApplicationMapper implements ResultSetMapper<ExternalApplic
 
         return new ExternalApplication(
                 r.getLong("id"),
-                r.getString("name"),
+                r.getString("service_name"),
+                r.getString("device_name"),
                 r.getString("client_id"),
                 r.getString("client_secret"),
                 r.getString("api_uri"),
