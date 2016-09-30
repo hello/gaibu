@@ -32,6 +32,9 @@ public class HueExpansionDeviceData implements ExpansionDeviceData {
 
     @Override
     public String getId() {
+        if(this.groupId == null) {
+            return "";
+        }
         return this.groupId.toString();
     }
 }

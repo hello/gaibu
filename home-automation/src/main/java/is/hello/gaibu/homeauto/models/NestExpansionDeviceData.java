@@ -20,6 +20,10 @@ public class NestExpansionDeviceData implements ExpansionDeviceData {
 
     @Override
     public String getId() {
+        if(this.thermostatId == null){
+            return "";
+        }
+
         return this.thermostatId;
     }
 }
