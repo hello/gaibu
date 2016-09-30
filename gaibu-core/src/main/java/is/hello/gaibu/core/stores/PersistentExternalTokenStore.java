@@ -14,13 +14,13 @@ import java.util.concurrent.TimeUnit;
 
 import is.hello.gaibu.core.db.ExternalTokenDAO;
 import is.hello.gaibu.core.exceptions.InvalidExternalTokenException;
-import is.hello.gaibu.core.models.ExternalApplication;
+import is.hello.gaibu.core.models.Expansion;
 import is.hello.gaibu.core.models.ExternalToken;
 
 public class PersistentExternalTokenStore implements ExternalOAuthTokenStore<ExternalToken> {
 
     private final ExternalTokenDAO externalTokenDAO;
-    private final ExternalApplicationStore<ExternalApplication> externalApplicationStore;
+    private final ExpansionStore<Expansion> expansionStore;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PersistentExternalTokenStore.class);
 
@@ -37,9 +37,9 @@ public class PersistentExternalTokenStore implements ExternalOAuthTokenStore<Ext
 
     public PersistentExternalTokenStore(
             final ExternalTokenDAO externalTokenDAO,
-            ExternalApplicationStore<ExternalApplication> externalApplicationStore) {
+            ExpansionStore<Expansion> expansionStore) {
         this.externalTokenDAO = externalTokenDAO;
-        this.externalApplicationStore = externalApplicationStore;
+        this.expansionStore = expansionStore;
 
         this.cache = CacheBuilder.newBuilder()
                 .expireAfterWrite(60, TimeUnit.SECONDS)

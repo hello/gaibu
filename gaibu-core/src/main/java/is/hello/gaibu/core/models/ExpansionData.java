@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 
-public class ExternalApplicationData {
+public class ExpansionData {
 
     @JsonProperty("id")
     public final Long id;
@@ -28,7 +28,7 @@ public class ExternalApplicationData {
     @JsonProperty("enabled")
     public final Boolean enabled;
 
-    public ExternalApplicationData(
+    public ExpansionData(
             final Long id,
             final Long appId,
             final String deviceId,
@@ -85,8 +85,8 @@ public class ExternalApplicationData {
             return this;
         }
 
-        public ExternalApplicationData build() {
-            return new ExternalApplicationData(id, appId, deviceId, data, created, updated, enabled);
+        public ExpansionData build() {
+            return new ExpansionData(id, appId, deviceId, data, created, updated, enabled);
         }
     }
 }

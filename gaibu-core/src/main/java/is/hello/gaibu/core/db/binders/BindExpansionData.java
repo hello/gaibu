@@ -12,19 +12,19 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import is.hello.gaibu.core.models.ExternalApplicationData;
+import is.hello.gaibu.core.models.ExpansionData;
 
-@BindingAnnotation(BindExternalApplicationData.JsonBinderFactory.class)
+@BindingAnnotation(BindExpansionData.JsonBinderFactory.class)
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.PARAMETER})
-public @interface BindExternalApplicationData {
+public @interface BindExpansionData {
 
     public static class JsonBinderFactory implements BinderFactory {
         @Override
         public Binder build(Annotation annotation) {
-            return new Binder<BindExternalApplicationData, ExternalApplicationData>() {
+            return new Binder<BindExpansionData, ExpansionData>() {
                 @Override
-                public void bind(SQLStatement q, BindExternalApplicationData bind, ExternalApplicationData arg) {
+                public void bind(SQLStatement q, BindExpansionData bind, ExpansionData arg) {
                         q.bind("data", arg.data);
                         q.bind("device_id", arg.deviceId);
                         q.bind("app_id", arg.appId);

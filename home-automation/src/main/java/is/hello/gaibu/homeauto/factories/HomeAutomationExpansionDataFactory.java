@@ -7,10 +7,10 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
-import is.hello.gaibu.core.models.ApplicationData;
+import is.hello.gaibu.core.models.ExpansionDeviceData;
 import is.hello.gaibu.core.models.Expansion;
-import is.hello.gaibu.homeauto.models.HueApplicationData;
-import is.hello.gaibu.homeauto.models.NestApplicationData;
+import is.hello.gaibu.homeauto.models.HueExpansionDeviceData;
+import is.hello.gaibu.homeauto.models.NestExpansionDeviceData;
 
 /**
  * Created by jnorgan on 9/27/16.
@@ -19,17 +19,17 @@ public final class HomeAutomationExpansionDataFactory {
   private static final Logger LOGGER = LoggerFactory.getLogger(HomeAutomationExpansionDataFactory.class);
 
 
-  public static ApplicationData getAppData(final ObjectMapper mapper, final String data, final String expansionName) {
-    switch(Expansion.ServiceName.valueOf(expansionName.toUpperCase())) {
+  public static ExpansionDeviceData getAppData(final ObjectMapper mapper, final String data, final Expansion.ServiceName serviceName) {
+    switch(serviceName) {
       case HUE:
         try {
-          return mapper.readValue(data, HueApplicationData.class);
+          return mapper.readValue(data, HueExpansionDeviceData.class);
         } catch (IOException io) {
           LOGGER.error("error=bad-expansion-data");
         }
       case NEST:
         try {
-          return mapper.readValue(data, NestApplicationData.class);
+          return mapper.readValue(data, NestExpansionDeviceData.class);
         } catch (IOException io) {
           LOGGER.error("error=bad-expansion-data");
         }
@@ -37,12 +37,12 @@ public final class HomeAutomationExpansionDataFactory {
     return null; //TODO: DON'T RETURN NULL!!!!
   }
 
-  public static ApplicationData getEmptyAppData(final String expansionName) {
-    switch(Expansion.ServiceName.valueOf(expansionName.toUpperCase())) {
+  public static ExpansionDeviceData getEmptyAppData(final Expansion.ServiceName serviceName) {
+    switch(serviceName) {
       case HUE:
-        return new HueApplicationData("", "", 0);
+        return new HueExpansionDeviceData("", "", 0);
       case NEST:
-        return new NestApplicationData("");
+        return new NestExpansionDeviceData("");
     }
     return null;
   }

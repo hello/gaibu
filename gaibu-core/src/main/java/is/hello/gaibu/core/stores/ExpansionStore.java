@@ -4,7 +4,7 @@ import com.google.common.base.Optional;
 
 import java.util.List;
 
-public interface ExternalApplicationStore<A> {
+public interface ExpansionStore<A> {
 
     Optional<A> getApplicationById(Long applicationId);
     Optional<A> getApplicationByClientId(String clientId);

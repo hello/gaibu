@@ -2,14 +2,14 @@ package is.hello.gaibu.homeauto.models;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import is.hello.gaibu.core.models.ApplicationData;
+import is.hello.gaibu.core.models.ExpansionDeviceData;
 
-public class NestApplicationData implements ApplicationData {
+public class NestExpansionDeviceData implements ExpansionDeviceData {
 
     @JsonProperty("thermostat_id")
     public String thermostatId;
 
-    public NestApplicationData(@JsonProperty("thermostat_id") final String thermostatId) {
+    public NestExpansionDeviceData(@JsonProperty("thermostat_id") final String thermostatId) {
         this.thermostatId = thermostatId;
     }
 

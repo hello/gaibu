@@ -2,6 +2,7 @@ package is.hello.gaibu.core.models;
 
 import com.google.common.base.Optional;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -32,9 +33,16 @@ public class MultiDensityImage {
         return formatUrl(phoneDensityExtraHigh);
     };
 
-    public MultiDensityImage(@JsonProperty("phone_1x") final Optional<String> phoneDensityNormal,
-                             @JsonProperty("phone_2x") final Optional<String> phoneDensityHigh,
-                             @JsonProperty("phone_3x") final Optional<String> phoneDensityExtraHigh) {
+    @JsonCreator
+    public MultiDensityImage(@JsonProperty("phone_1x") final String phoneDensityNormal,
+                             @JsonProperty("phone_2x") final String phoneDensityHigh,
+                             @JsonProperty("phone_3x") final String phoneDensityExtraHigh) {
+        this("", Optional.of(phoneDensityNormal), Optional.of(phoneDensityHigh), Optional.of(phoneDensityExtraHigh));
+    }
+
+    public MultiDensityImage(final Optional<String> phoneDensityNormal,
+                             final Optional<String> phoneDensityHigh,
+                             final Optional<String> phoneDensityExtraHigh) {
         this("", phoneDensityNormal, phoneDensityHigh, phoneDensityExtraHigh);
     }
 

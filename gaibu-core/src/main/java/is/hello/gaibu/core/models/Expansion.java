@@ -1,5 +1,6 @@
 package is.hello.gaibu.core.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import org.joda.time.DateTime;
@@ -19,59 +20,36 @@ public class Expansion
 
     }
 
-    @JsonProperty("id")
-    public final Long id;
+    public enum Category {
+        LIGHT("light"),
+        MUSIC("music"),
+        NEWS("news"),
+        TEMPERATURE("temperature"),
+        TRIVIA("trivia"),
+        WEATHER("weather");
 
-    @JsonProperty("category")
-    public final ExternalApplication.Category category;
 
-    @JsonProperty("device_name")
-    public final String deviceName;
+        private String value;
 
-    @JsonProperty("service_name")
-    public final ServiceName serviceName;
+        Category(String value) {
+            this.value = value;
+        }
 
-    @JsonProperty("description")
-    public final String description;
+        @Override
+        public String toString() {
+            return value;
+        }
 
-    @JsonProperty("icon")
-    public final MultiDensityImage icon;
-
-    @JsonProperty("auth_uri")
-    public final String authURI;
-
-    @JsonProperty("completion_uri")
-    public final String completionURI;
-
-    @JsonProperty("state")
-    public final State state;
-
-    @JsonProperty("created")
-    public final DateTime created;
-
-    public Expansion (
-            final Long id,
-            final ExternalApplication.Category category,
-            final String deviceName,
-            final ServiceName serviceName,
-            final String description,
-            final MultiDensityImage icon,
-            final String authURI,
-            final String completionURI,
-            final State state,
-            final DateTime created
-
-    ) {
-        this.id = id;
-        this.category = category;
-        this.deviceName = deviceName;
-        this.serviceName = serviceName;
-        this.description = description;
-        this.icon = icon;
-        this.authURI = authURI;
-        this.completionURI = completionURI;
-        this.state = state;
-        this.created = created;
+        public static Category fromString(final String text) {
+            if (text != null) {
+                for (final Category cat : Category.values()) {
+                    if (text.equalsIgnoreCase(cat.toString())) {
+                        return cat;
+                    }
+                }
+            }
+            throw new IllegalArgumentException();
+        }
     }
 
     public enum State {
@@ -82,17 +60,114 @@ public class Expansion
         NOT_CONFIGURED  //Expansion is authenticated, but lacks required configuration information to function
     }
 
+
+    @JsonProperty("id")
+    public final Long id;
+
+    @JsonProperty("service_name")
+    public final ServiceName serviceName;
+
+    @JsonProperty("device_name")
+    public final String deviceName;
+
+    @JsonProperty("description")
+    public final String description;
+
+    @JsonProperty("icon")
+    public final MultiDensityImage icon;
+
+    @JsonProperty("client_id")
+    @JsonIgnore
+    public final String clientId;
+
+    @JsonProperty("client_secret")
+    @JsonIgnore
+    public final String clientSecret;
+
+    @JsonProperty("api_uri")
+    @JsonIgnore
+    public final String apiURI;
+
+    @JsonProperty("auth_uri")
+    public String authURI;
+
+    @JsonProperty("token_uri")
+    public final String tokenURI;
+
+    @JsonProperty("refresh_uri")
+    public final String refreshURI;
+
+    @JsonProperty("category")
+    public final Category category;
+
+    @JsonProperty("created")
+    public final DateTime created;
+
+    @JsonProperty("grant_type")
+    @JsonIgnore
+    public final Integer grantType;
+
+    @JsonProperty("completion_uri")
+    public String completionURI;
+
+    @JsonProperty("state")
+    public Expansion.State state;
+
+    public Expansion (
+            final Long id,
+            final ServiceName serviceName,
+            final String deviceName,
+            final String description,
+            final MultiDensityImage icon,
+            final String clientId,
+            final String clientSecret,
+            final String apiURI,
+            final String authURI,
+            final String tokenURI,
+            final String refreshURI,
+            final Category category,
+            final DateTime created,
+            final Integer grantType,
+            final String completionURI,
+            final State state
+
+    ) {
+        this.id = id;
+        this.serviceName = serviceName;
+        this.deviceName = deviceName;
+        this.description = description;
+        this.icon = icon;
+        this.clientId = clientId;
+        this.clientSecret = clientSecret;
+        this.apiURI = apiURI;
+        this.authURI = authURI;
+        this.tokenURI = tokenURI;
+        this.refreshURI = refreshURI;
+        this.category = category;
+        this.created = created;
+        this.grantType = grantType;
+        this.completionURI = completionURI;
+        this.state = state;
+
+    }
+
     public static class Builder {
         private Long id;
-        private ExternalApplication.Category category;
-        private String deviceName;
         private ServiceName serviceName;
+        private String deviceName;
         private String description;
         private MultiDensityImage icon;
+        private String clientId;
+        private String clientSecret;
+        private String apiURI;
         private String authURI;
+        private String tokenURI;
+        private String refreshURI;
+        private Category category;
+        private DateTime created;
+        private Integer grantType;
         private String completionURI;
         private State state;
-        private DateTime created;
 
         public Builder() {
             created = DateTime.now(DateTimeZone.UTC);
@@ -103,22 +178,13 @@ public class Expansion
             return this;
         }
 
-        public Builder withCreated(final DateTime created) {
-            this.created = created;
-            return this;
-        }
-        public Builder withCategory(final ExternalApplication.Category category) {
-            this.category = category;
+        public Builder withServiceName(final ServiceName serviceName) {
+            this.serviceName = serviceName;
             return this;
         }
 
         public Builder withDeviceName(final String deviceName) {
             this.deviceName = deviceName;
-            return this;
-        }
-
-        public Builder withServiceName(final ServiceName serviceName) {
-            this.serviceName = serviceName;
             return this;
         }
 
@@ -132,8 +198,45 @@ public class Expansion
             return this;
         }
 
+        public Builder withClientId(final String clientId) {
+            this.clientId = clientId;
+            return this;
+        }
+        public Builder withClientSecret(final String clientSecret) {
+            this.clientSecret = clientSecret;
+            return this;
+        }
+        public Builder withApiURI(final String apiURI) {
+            this.apiURI = apiURI;
+            return this;
+        }
         public Builder withAuthURI(final String authURI) {
             this.authURI = authURI;
+            return this;
+        }
+
+        public Builder withTokenURI(final String tokenURI) {
+            this.tokenURI = tokenURI;
+            return this;
+        }
+
+        public Builder withRefreshURI(final String refreshURI) {
+            this.refreshURI = refreshURI;
+            return this;
+        }
+
+        public Builder withCategory(final Category category) {
+            this.category = category;
+            return this;
+        }
+
+        public Builder withCreated(final DateTime created) {
+            this.created = created;
+            return this;
+        }
+
+        public Builder withGrantType(final Integer grantType) {
+            this.grantType = grantType;
             return this;
         }
 
@@ -148,7 +251,9 @@ public class Expansion
         }
 
         public Expansion build() {
-            return new Expansion(id, category, deviceName, serviceName, description, icon, authURI, completionURI, state, created);
+            return new Expansion(id, serviceName, deviceName, description, icon, clientId,
+                clientSecret, apiURI, authURI, tokenURI, refreshURI, category, created, grantType,
+                completionURI, state);
         }
     }
 }
