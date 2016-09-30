@@ -1,8 +1,10 @@
-package is.hello.gaibu.core.models;
+package is.hello.gaibu.homeauto.models;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class HueApplicationData {
+import is.hello.gaibu.core.models.ExpansionDeviceData;
+
+public class HueExpansionDeviceData implements ExpansionDeviceData {
 
     @JsonProperty("bridge_id")
     public final String bridgeId;
@@ -11,9 +13,9 @@ public class HueApplicationData {
     public final String whitelistId;
 
     @JsonProperty("group_id")
-    public final Integer groupId;
+    public Integer groupId;
 
-    public HueApplicationData(
+    public HueExpansionDeviceData(
         @JsonProperty("bridge_id") final String bridgeId,
         @JsonProperty("whitelist_id") final String whitelistId,
         @JsonProperty("group_id") final Integer groupId
@@ -21,5 +23,15 @@ public class HueApplicationData {
         this.bridgeId = bridgeId;
         this.whitelistId = whitelistId;
         this.groupId = groupId;
+    }
+
+    @Override
+    public void setId(String id) {
+        this.groupId = Integer.parseInt(id);
+    }
+
+    @Override
+    public String getId() {
+        return this.groupId.toString();
     }
 }

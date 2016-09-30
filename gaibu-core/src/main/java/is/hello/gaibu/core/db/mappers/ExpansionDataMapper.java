@@ -9,19 +9,20 @@ import org.skife.jdbi.v2.tweak.ResultSetMapper;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import is.hello.gaibu.core.models.ExternalApplicationData;
+import is.hello.gaibu.core.models.ExpansionData;
 
-public class ExternalApplicationDataMapper implements ResultSetMapper<ExternalApplicationData> {
+public class ExpansionDataMapper implements ResultSetMapper<ExpansionData> {
     @Override
-    public ExternalApplicationData map(int index, ResultSet r, StatementContext ctx) throws SQLException {
+    public ExpansionData map(int index, ResultSet r, StatementContext ctx) throws SQLException {
 
-        return new ExternalApplicationData(
+        return new ExpansionData(
             r.getLong("id"),
             r.getLong("app_id"),
             r.getString("device_id"),
             r.getString("data"),
             new DateTime(r.getTimestamp("created_at"), DateTimeZone.UTC),
-            new DateTime(r.getTimestamp("updated_at"), DateTimeZone.UTC)
+            new DateTime(r.getTimestamp("updated_at"), DateTimeZone.UTC),
+            r.getBoolean("enabled")
         );
     }
 }

@@ -2,8 +2,11 @@ package is.hello.gaibu.homeauto.services;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,17 +15,22 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.List;
 import java.util.Map;
 
+import is.hello.gaibu.core.models.Configuration;
 import is.hello.gaibu.homeauto.interfaces.ControllableThermostat;
+import is.hello.gaibu.homeauto.interfaces.HomeAutomationExpansion;
+import is.hello.gaibu.homeauto.models.Thermostat;
 
 
 /**
  * Created by jnorgan on 8/24/16.
  */
-public class NestThermostat implements ControllableThermostat{
+public class NestThermostat implements ControllableThermostat, HomeAutomationExpansion {
   private static final Logger LOGGER = LoggerFactory.getLogger(NestThermostat.class);
 
   private String accessToken;
@@ -149,4 +157,20 @@ public class NestThermostat implements ControllableThermostat{
     return "";
   }
 
+  @Override
+  public List<Configuration> getConfigurations() {
+    final String groupsJson = getThermostats(accessToken);
+    final Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX").create();
+    final Type collectionType = new TypeToken<Map<String, Thermostat>>(){}.getType();
+    final Map<String, Thermostat> groupsMap = gson.fromJson(groupsJson, collectionType);
+
+    final List<Configuration> configs = Lists.newArrayList();
+    for(final Map.Entry<String, Thermostat> entry : groupsMap.entrySet()) {
+      LOGGER.debug("{} = {}", entry.getKey(), entry.getValue().getWhere_id());
+      final Configuration groupConfig = new Configuration(entry.getKey(), entry.getValue().getName(), false);
+      configs.add(groupConfig);
+    }
+
+    return configs;
+  }
 }
