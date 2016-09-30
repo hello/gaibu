@@ -265,7 +265,7 @@ public class HueLight implements ColoredLight, HomeAutomationExpansion {
     final List<Configuration> configs = Lists.newArrayList();
     for(final Map.Entry<String, HueGroup> entry : groupsMap.entrySet()) {
       LOGGER.debug("{} = {}", entry.getKey(), entry.getValue().name);
-      final Configuration groupConfig = new Configuration(entry.getKey(), entry.getValue().name);
+      final Configuration groupConfig = new Configuration(entry.getKey(), entry.getValue().name, false);
       configs.add(groupConfig);
     }
 

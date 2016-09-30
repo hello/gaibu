@@ -167,7 +167,7 @@ public class NestThermostat implements ControllableThermostat, HomeAutomationExp
     final List<Configuration> configs = Lists.newArrayList();
     for(final Map.Entry<String, Thermostat> entry : groupsMap.entrySet()) {
       LOGGER.debug("{} = {}", entry.getKey(), entry.getValue().getWhere_id());
-      final Configuration groupConfig = new Configuration(entry.getKey(), entry.getValue().getName());
+      final Configuration groupConfig = new Configuration(entry.getKey(), entry.getValue().getName(), false);
       configs.add(groupConfig);
     }
 

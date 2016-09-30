@@ -18,4 +18,8 @@ public class NestExpansionDeviceData implements ExpansionDeviceData {
         this.thermostatId = id;
     }
 
+    @Override
+    public String getId() {
+        return this.thermostatId;
+    }
 }
