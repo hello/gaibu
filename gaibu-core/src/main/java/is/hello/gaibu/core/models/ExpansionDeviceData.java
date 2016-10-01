@@ -5,6 +5,7 @@ package is.hello.gaibu.core.models;
  */
 public interface ExpansionDeviceData {
   void setId(final String id);
+
   String getId();
 
 }

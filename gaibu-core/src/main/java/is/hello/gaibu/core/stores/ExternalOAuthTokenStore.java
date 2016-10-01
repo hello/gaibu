@@ -14,6 +14,8 @@ public interface ExternalOAuthTokenStore<T> {
 
     void disable(T accessToken);
 
+    void disableByDeviceId(String deviceId, Long appId);
+
     void disableByRefreshToken(String refreshToken);
 
 }

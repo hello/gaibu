@@ -70,6 +70,11 @@ public class PersistentExternalTokenStore implements ExternalOAuthTokenStore<Ext
         externalTokenDAO.disable(externalToken.accessToken);
     }
 
+    @Override
+    public void disableByDeviceId(String deviceId, Long appId) {
+        externalTokenDAO.disableByDeviceId(deviceId, appId);
+    }
+
     public Optional<ExternalToken> getExternalTokenByToken(final String accessToken, final DateTime now) {
         final Optional<ExternalToken> token = cache.getUnchecked(accessToken);
         if(!token.isPresent()) {
