@@ -37,6 +37,9 @@ public interface ExternalTokenDAO {
     @SqlUpdate("UPDATE external_oauth_tokens SET access_expires_in=0 WHERE access_token = :access_token")
     void disable(@Bind("access_token") String accessToken);
 
+    @SqlUpdate("UPDATE external_oauth_tokens SET access_expires_in=0 WHERE device_id = :device_id AND app_id = :application_id")
+    void disableByDeviceId(@Bind("device_id") String deviceId, @Bind("application_id") Long applicationId);
+
     @SqlUpdate("UPDATE external_oauth_tokens SET access_expires_in=0, refresh_expires_in=0 WHERE refresh_token = :refresh_token")
     void disableByRefreshToken(@Bind("refresh_token") String refreshToken);
 }
