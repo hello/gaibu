@@ -179,8 +179,8 @@ public class HueLight implements ColoredLight, HomeAutomationExpansion {
       final URL uri = new URL(url);
       final HttpURLConnection connection = (HttpURLConnection) uri.openConnection();
       connection.setRequestMethod("GET");
-      connection.setConnectTimeout(3000);
-      connection.setReadTimeout(3000);
+      connection.setConnectTimeout(10000);
+      connection.setReadTimeout(10000);
       connection.setDoOutput(true);
       connection.setRequestProperty("Authorization", "Bearer " + accessToken);
       connection.setRequestProperty("Content-Type", "application/json");
@@ -191,10 +191,11 @@ public class HueLight implements ColoredLight, HomeAutomationExpansion {
 
         return Optional.of(result);
       }
-      return com.google.common.base.Optional.absent();
+      LOGGER.error("error=get-data-failure response_code={}", connection.getResponseCode());
+      return Optional.absent();
 
     }catch (Exception ex) {
-      LOGGER.error("error=get-data-failure");
+      LOGGER.error("error=get-data-failure message='{}'", ex.getMessage());
     }
 
     return Optional.absent();
@@ -215,13 +216,12 @@ public class HueLight implements ColoredLight, HomeAutomationExpansion {
       out.write(data);
       out.close();
 
-
       final String result = readInputStream((InputStream)connection.getContent());
 
       return Optional.of(result);
 
     } catch (Exception ex) {
-      LOGGER.error("error=put-data-failure message={}", ex.getMessage());
+      LOGGER.error("error=put-data-failure message='{}'", ex.getMessage());
     }
 
     return Optional.absent();
@@ -248,7 +248,7 @@ public class HueLight implements ColoredLight, HomeAutomationExpansion {
       return Optional.of(result);
 
     } catch (Exception ex) {
-      LOGGER.error("error=post-data-failure message={}", ex.getMessage());
+      LOGGER.error("error=post-data-failure message='{}'", ex.getMessage());
     }
 
     return Optional.absent();
@@ -314,6 +314,12 @@ public class HueLight implements ColoredLight, HomeAutomationExpansion {
         .build();
     final String sceneJson = gson.toJson(hueScene);
     final Optional<String> response = postData(DEFAULT_API_PATH + "bridges/" + bridgeId + "/" + whitelistId + "/scenes/", accessToken, sceneJson);
+    if(!response.isPresent()) {
+      LOGGER.error("error=create-scene-failure bridge_id={} whitelist_id={}", bridgeId, whitelistId);
+    }
+
+
+
 
     return Optional.of(hueScene);
   }
