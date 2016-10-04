@@ -55,17 +55,4 @@ public class HueGroupAction {
     this.sat = sat;
     this.xy = xy;
   }
-//  "alert": "none",
-  //        "bri": 1,
-  //        "colormode": "ct",
-  //        "ct": 370,
-  //        "effect": "none",
-  //        "hue": 14910,
-  //        "on": false,
-  //        "sat": 144,
-  //        "xy": [
-  //    0.4596,
-  //        0.4105
-  //    ]
-  //  },
 }

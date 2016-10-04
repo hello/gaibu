@@ -173,7 +173,7 @@ public class Expansion
             created = DateTime.now(DateTimeZone.UTC);
         }
 
-        public Expansion.Builder withId(final Long id) {
+        public Builder withId(final Long id) {
             this.id = id;
             return this;
         }
