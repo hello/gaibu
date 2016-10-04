@@ -24,6 +24,7 @@ import is.hello.gaibu.core.models.Configuration;
 import is.hello.gaibu.homeauto.interfaces.ColoredLight;
 import is.hello.gaibu.homeauto.interfaces.HomeAutomationExpansion;
 import is.hello.gaibu.homeauto.models.HueGroup;
+import is.hello.gaibu.homeauto.models.HueScene;
 
 
 /**
@@ -103,12 +104,32 @@ public class HueLight implements ColoredLight, HomeAutomationExpansion {
     setLightState(isOn, 4);
   }
 
-  public String getGroups() {
+  public Optional<Map<String, HueGroup>> getGroups() {
     final Optional<String> response = getData(DEFAULT_API_PATH + "bridges/" + bridgeId + "/" + whitelistId + "/groups", accessToken);
     if(!response.isPresent()) {
-      LOGGER.error("error=get-groups-failure");
+      LOGGER.error("error=hue-get-groups-failure bridge_id={} whitelist_id={}", bridgeId, whitelistId);
+      return Optional.absent();
     }
-    return response.get();
+    final Type collectionType = new TypeToken<Map<String, HueGroup>>(){}.getType();
+    final Map<String, HueGroup> groupsMap = gson.fromJson(response.get(), collectionType);
+    if(groupsMap.isEmpty()){
+      return Optional.absent();
+    }
+    return Optional.of(groupsMap);
+  }
+
+  public Optional<Map<String, HueScene>> getScenes() {
+    final Optional<String> response = getData(DEFAULT_API_PATH + "bridges/" + bridgeId + "/" + whitelistId + "/scenes", accessToken);
+    if(!response.isPresent()) {
+      LOGGER.error("error=get-groups-failure");
+      return Optional.absent();
+    }
+    final Type collectionType = new TypeToken<Map<String, HueScene>>(){}.getType();
+    final Map<String, HueScene> scenesMap = gson.fromJson(response.get(), collectionType);
+    if(scenesMap.isEmpty()){
+      return Optional.absent();
+    }
+    return Optional.of(scenesMap);
   }
 
   public String getBridge(final String accessToken) {
@@ -257,18 +278,43 @@ public class HueLight implements ColoredLight, HomeAutomationExpansion {
 
   @Override
   public List<Configuration> getConfigurations() {
-    final String groupsJson = getGroups();
-    final Gson gson = new Gson();
-    final Type collectionType = new TypeToken<Map<String, HueGroup>>(){}.getType();
-    final Map<String, HueGroup> groupsMap = gson.fromJson(groupsJson, collectionType);
+    final Optional<Map<String, HueGroup>> optionalGroupsMap = getGroups();
+    if(!optionalGroupsMap.isPresent()) {
+      return Lists.newArrayList();
+    }
+
+    final Map<String, HueGroup> groupsMap = optionalGroupsMap.get();
 
     final List<Configuration> configs = Lists.newArrayList();
     for(final Map.Entry<String, HueGroup> entry : groupsMap.entrySet()) {
-      LOGGER.debug("{} = {}", entry.getKey(), entry.getValue().name);
       final Configuration groupConfig = new Configuration(entry.getKey(), entry.getValue().name, false);
       configs.add(groupConfig);
     }
-
     return configs;
+  }
+
+  public Optional<HueScene> createDefaultScene(final Integer groupId) {
+    final Optional<Map<String, HueGroup>> optionalGroupsMap = getGroups();
+    if(!optionalGroupsMap.isPresent()) {
+      return Optional.absent();
+    }
+
+    final Map<String, HueGroup> groupsMap = optionalGroupsMap.get();
+
+    if(!groupsMap.containsKey(groupId.toString())) {
+      LOGGER.error("error=scene-create-unknown-group group_id={}", groupId);
+    }
+
+    final HueGroup group = groupsMap.get(groupId.toString());
+
+    final HueScene hueScene = new HueScene.Builder()
+        .withName("Sense Rise")
+        .withRecycle(false)
+        .withLights(group.lights)
+        .build();
+    final String sceneJson = gson.toJson(hueScene);
+    final Optional<String> response = postData(DEFAULT_API_PATH + "bridges/" + bridgeId + "/" + whitelistId + "/scenes/", accessToken, sceneJson);
+
+    return Optional.of(hueScene);
   }
 }
