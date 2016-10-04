@@ -17,5 +17,10 @@
             <artifactId>weather</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>is.hello.gaibu</groupId>
+            <artifactId>gaibu-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>
