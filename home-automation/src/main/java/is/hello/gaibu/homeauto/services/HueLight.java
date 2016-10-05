@@ -24,6 +24,7 @@ import is.hello.gaibu.core.models.Configuration;
 import is.hello.gaibu.homeauto.interfaces.ColoredLight;
 import is.hello.gaibu.homeauto.interfaces.HomeAutomationExpansion;
 import is.hello.gaibu.homeauto.models.HueGroup;
+import is.hello.gaibu.homeauto.models.HueLightState;
 import is.hello.gaibu.homeauto.models.HueScene;
 
 
@@ -206,8 +207,8 @@ public class HueLight implements ColoredLight, HomeAutomationExpansion {
       final URL uri = new URL(url);
       final HttpURLConnection connection = (HttpURLConnection)uri.openConnection();
       connection.setRequestMethod("PUT");
-      connection.setConnectTimeout(3000);
-      connection.setReadTimeout(3000);
+      connection.setConnectTimeout(10000);
+      connection.setReadTimeout(10000);
       connection.setDoOutput(true);
       connection.setRequestProperty("Authorization", "Bearer " + accessToken);
       connection.setRequestProperty("Content-Type", "application/json");
@@ -232,8 +233,8 @@ public class HueLight implements ColoredLight, HomeAutomationExpansion {
       final URL uri = new URL(url);
       final HttpURLConnection connection = (HttpURLConnection)uri.openConnection();
       connection.setRequestMethod("POST");
-      connection.setConnectTimeout(3000);
-      connection.setReadTimeout(3000);
+      connection.setConnectTimeout(10000);
+      connection.setReadTimeout(10000);
       connection.setDoOutput(true);
       connection.setRequestProperty("Authorization", "Bearer " + accessToken);
       connection.setRequestProperty("Content-Type", "application/json");
@@ -316,10 +317,48 @@ public class HueLight implements ColoredLight, HomeAutomationExpansion {
     final Optional<String> response = postData(DEFAULT_API_PATH + "bridges/" + bridgeId + "/" + whitelistId + "/scenes/", accessToken, sceneJson);
     if(!response.isPresent()) {
       LOGGER.error("error=create-scene-failure bridge_id={} whitelist_id={}", bridgeId, whitelistId);
+      return Optional.absent();
     }
 
+    final Type collectionType = new TypeToken<List<Map<String, Map<String, String>>>>(){}.getType();
+    final List<Map<String, Map<String, String>>> responseList = gson.fromJson(response.get(), collectionType);
+    if(responseList.isEmpty())
+    {
+      return Optional.absent();
+    }
 
+    if(responseList.get(0).isEmpty()){
+      return Optional.absent();
+    }
 
+    final Map<String, Map<String, String>> responseMap = responseList.get(0);
+    if(!responseMap.containsKey("success")){
+      LOGGER.error("error=scene-creation-error bridge_id={} whitelist_id={}", bridgeId, whitelistId);
+      return Optional.absent();
+    }
+
+    final Map<String, String> idMap = responseMap.get("success");
+
+    final String sceneId = idMap.get("id");
+
+    final HueLightState defaultSceneLightState = new HueLightState.Builder()
+        .withOn(true)
+        .withCT(500)
+        .withBrightness(254)
+        .build();
+    final String lightStateJson = gson.toJson(defaultSceneLightState);
+    Integer successCount = group.lights.length;
+    for(final String lightId : group.lights){
+      final Optional<String> modifyResponse = putData(DEFAULT_API_PATH + "bridges/" + bridgeId + "/" + whitelistId + "/scenes/" + sceneId + "/lightstates/" + lightId, accessToken, lightStateJson);
+      if(!modifyResponse.isPresent()) {
+        LOGGER.error("error=modify-scene-failure bridge_id={} whitelist_id={} scene_id={} light_id={}", bridgeId, whitelistId, sceneId, lightId);
+        successCount--;
+      }
+    }
+    if(successCount < 1){
+      LOGGER.error("error=all-lights-failed");
+      return Optional.absent();
+    }
 
     return Optional.of(hueScene);
   }
