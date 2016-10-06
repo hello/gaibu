@@ -158,8 +158,7 @@ public class HueLight implements ColoredLight, HomeAutomationExpansion {
       LOGGER.error("error=hue-get-bridges msg={}", e.getMessage());
     }
 
-    //TODO: Replace device type for environment-specific project sense-staging
-    final Map<String, String> deviceInfo = Maps.newHashMap(ImmutableMap.of("devicetype", "sense-dev"));
+    final Map<String, String> deviceInfo = Maps.newHashMap(ImmutableMap.of("devicetype", appName));
 
     final Call<List<Map<String, Map<String,String>>>> wlCall = service.requestWhiteList(deviceInfo);
     try {
