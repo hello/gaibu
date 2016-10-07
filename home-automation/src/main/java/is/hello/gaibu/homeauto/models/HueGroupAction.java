@@ -1,5 +1,6 @@
 package is.hello.gaibu.homeauto.models;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
@@ -34,16 +35,17 @@ public class HueGroupAction {
   @JsonProperty("xy")
   public final Float[] xy;
 
+  @JsonCreator
   public HueGroupAction(
-      final String alert,
-      final Integer brightness,
-      final String colormode,
-      final Integer ct,
-      final String effect,
-      final Integer hue,
-      final Boolean on,
-      final Integer sat,
-      final Float[] xy) {
+      @JsonProperty("alert") final String alert,
+      @JsonProperty("bri") final Integer brightness,
+      @JsonProperty("colormode") final String colormode,
+      @JsonProperty("ct") final Integer ct,
+      @JsonProperty("effect") final String effect,
+      @JsonProperty("hue") final Integer hue,
+      @JsonProperty("on") final Boolean on,
+      @JsonProperty("sat") final Integer sat,
+      @JsonProperty("xy") final Float[] xy) {
 
     this.alert = alert;
     this.brightness = brightness;
