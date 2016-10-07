@@ -235,29 +235,14 @@ public class HueLight implements ColoredLight, HomeAutomationExpansion {
     return configs;
   }
 
-  public Optional<HueScene> createDefaultScene(final Integer groupId) {
-    final Optional<Map<String, HueGroup>> optionalGroupsMap = getGroups();
-    if(!optionalGroupsMap.isPresent()) {
-      return Optional.absent();
-    }
-
-    final Map<String, HueGroup> groupsMap = optionalGroupsMap.get();
-
-    if(!groupsMap.containsKey(groupId.toString())) {
-      LOGGER.error("error=scene-create-unknown-group group_id={}", groupId);
-    }
-
-    final HueGroup group = groupsMap.get(groupId.toString());
-
+  public Optional<String> createScene(final String sceneName, final String[] lightIds) {
     final HueScene hueScene = new HueScene.Builder()
-        .withName("Sense Rise")
+        .withName(sceneName)
         .withRecycle(false)
-        .withLights(group.lights)
+        .withLights(lightIds)
         .build();
 
-
     final Call<List<Map<String, Map<String,String>>>> createCall = service.createScene(hueScene);
-    String createdSceneId = "";
     try {
       final Response<List<Map<String, Map<String,String>>>> configResponse = createCall.execute();
       if(!configResponse.isSuccessful()) {
@@ -280,35 +265,58 @@ public class HueLight implements ColoredLight, HomeAutomationExpansion {
 
       final Map<String, String> idMap = responseMap.get("success");
 
-      createdSceneId = idMap.get("id");
+      return Optional.of(idMap.get("id"));
 
     } catch (IOException e) {
       LOGGER.error("error=hue-set-scene msg={}", e.getMessage());
     }
+
+    return Optional.absent();
+  }
+
+  public void setSceneLightStates(final String sceneId, final String[] lightIds, final HueLightState lightState) {
+    for(final String lightId : lightIds){
+      final Call<List<Map<String, Map<String,String>>>> lightStateCall = service.setSceneLightState(sceneId, lightId, lightState);
+      try {
+        final Response<List<Map<String, Map<String,String>>>> lightStateResponse = lightStateCall.execute();
+        if(!lightStateResponse.isSuccessful()) {
+          LOGGER.error("error=scene-light-state-failed scene_id={} light_id={}", sceneId, lightId);
+        }
+      } catch (IOException e) {
+        LOGGER.error("error=scene-light-state msg={}", e.getMessage());
+      }
+    }
+  }
+
+  public Optional<String> createDefaultScene(final Integer groupId) {
+    final Optional<Map<String, HueGroup>> optionalGroupsMap = getGroups();
+    if(!optionalGroupsMap.isPresent()) {
+      return Optional.absent();
+    }
+
+    final Map<String, HueGroup> groupsMap = optionalGroupsMap.get();
+
+    if(!groupsMap.containsKey(groupId.toString())) {
+      LOGGER.error("error=scene-create-unknown-group group_id={}", groupId);
+    }
+
+    final HueGroup group = groupsMap.get(groupId.toString());
+
+    final Optional<String> createdSceneIdOptional = createScene("Sense Rise", group.lights);
+    if(!createdSceneIdOptional.isPresent()) {
+      LOGGER.error("error=scene-create-failed group_id={}", groupId);
+      return Optional.absent();
+    }
+
+    final String createdSceneId = createdSceneIdOptional.get();
 
     final HueLightState defaultSceneLightState = new HueLightState.Builder()
         .withOn(true)
         .withCT(500)
         .withBrightness(254)
         .build();
+    setSceneLightStates(createdSceneId, group.lights, defaultSceneLightState);
 
-    Integer successCount = group.lights.length;
-    for(final String lightId : group.lights){
-      final Call<List<Map<String, Map<String,String>>>> lightStateCall = service.setSceneLightState(createdSceneId, lightId, defaultSceneLightState);
-      try {
-        final Response<List<Map<String, Map<String,String>>>> lightStateResponse = lightStateCall.execute();
-        if(!lightStateResponse.isSuccessful()) {
-          successCount--;
-        }
-      } catch (IOException e) {
-        LOGGER.error("error=scene-light-state msg={}", e.getMessage());
-      }
-    }
-    if(successCount < 1){
-      LOGGER.error("error=all-scene-lights-failed");
-      return Optional.absent();
-    }
-
-    return Optional.of(hueScene);
+    return Optional.of(createdSceneId);
   }
 }
