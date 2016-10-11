@@ -9,5 +9,5 @@ public interface Light {
   /**
    * Sets the state of a light on/off.
    */
-  void setLightState(final Boolean isOn);
+  Boolean setLightState(final Boolean isOn);
 }

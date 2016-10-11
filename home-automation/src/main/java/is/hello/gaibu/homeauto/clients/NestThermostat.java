@@ -76,7 +76,7 @@ public class NestThermostat implements ControllableThermostat, HomeAutomationExp
     return NestThermostat.create(apiPath, accessToken, "");
   }
 
-  public void setStateValues(Map<String, Object> stateValues) {
+  public Optional<Map<String, Object>> setStateValues(Map<String, Object> stateValues) {
     final Call<Map<String, Object>> configCall = service.setThermostatState(stateValues);
     try {
       final Response<Map<String, Object>> configResponse = configCall.execute();
@@ -89,19 +89,23 @@ public class NestThermostat implements ControllableThermostat, HomeAutomationExp
               .build();
 
           final okhttp3.Response response = client.newCall(request).execute();
-          if(response.isSuccessful()) {
-            LOGGER.info("action=nest-set-state-success");
+          if(!response.isSuccessful()) {
+            LOGGER.error("error=nest-set-state-failure");
+            return Optional.absent();
           }
+          return Optional.of(stateValues);
         }
       }
     } catch (IOException e) {
       LOGGER.error("error=nest-set-state msg={}", e.getMessage());
     }
+    return Optional.absent();
   }
 
-  public void setTargetTemperature(final Integer temp) {
+  public Boolean setTargetTemperature(final Integer temp) {
     final Map<String, Object> data = Maps.newHashMap(ImmutableMap.of("target_temperature_f", temp));
-    setStateValues(data);
+    final Optional<Map<String, Object>> responseMap = setStateValues(data);
+    return responseMap.isPresent();
   }
 
   public Optional<Integer> getTemperature() {

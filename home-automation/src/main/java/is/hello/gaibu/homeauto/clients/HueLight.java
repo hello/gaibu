@@ -89,46 +89,54 @@ public class HueLight implements ColoredLight, HomeAutomationExpansion {
 
   }
 
-  public void setStateValues(Map<String, Object> stateValues) {
+  public Optional<Map<String, Object>> setStateValues(Map<String, Object> stateValues) {
     final Call<Map<String, Object>> configCall = service.setGroupState(stateValues);
     try {
       final Response<Map<String, Object>> configResponse = configCall.execute();
       if(!configResponse.isSuccessful()) {
-        LOGGER.error("error=set-state-values-failure");
+        LOGGER.error("error=set-state-values-failure response_code={} message={}", configResponse.code(), configResponse.errorBody());
+        return Optional.absent();
       }
+      final Map<String, Object> responseMap = configResponse.body();
+      return Optional.of(responseMap);
     } catch (IOException e) {
       LOGGER.error("error=hue-get-bridges msg={}", e.getMessage());
     }
+    return Optional.absent();
   }
 
-  public void setBrightness(final int value) {
+  public Boolean setBrightness(final int value) {
     //brightness is a unit8
     final Integer brightValue = value & 0xFF;
     final Map<String, Object> data = Maps.newHashMap(ImmutableMap.of("bri", brightValue));
-    setStateValues(data);
+    final Optional<Map<String, Object>> responseMap = setStateValues(data);
+    return responseMap.isPresent();
   }
 
-  public void adjustBrightness(final Integer amount) {
+  public Boolean adjustBrightness(final Integer amount) {
     final Map<String, Object> data = Maps.newHashMap(ImmutableMap.of("bri_inc", amount));
-    setStateValues(data);
+    final Optional<Map<String, Object>> responseMap = setStateValues(data);
+    return responseMap.isPresent();
   }
 
-  public void adjustTemperature(final Integer amount) {
+  public Boolean adjustTemperature(final Integer amount) {
     final Map<String, Object> data = Maps.newHashMap(ImmutableMap.of("ct_inc", amount));
-    setStateValues(data);
+    final Optional<Map<String, Object>> responseMap = setStateValues(data);
+    return responseMap.isPresent();
   }
 
-  public void setLightState(final Boolean isOn, final Integer transitionTime) {
+  public Boolean setLightState(final Boolean isOn, final Integer transitionTime) {
 
     final Map<String, Object> data = Maps.newHashMap();
     data.put("on", isOn);
     data.put("transitiontime", transitionTime);
 
-    setStateValues(data);
+    final Optional<Map<String, Object>> responseMap = setStateValues(data);
+    return responseMap.isPresent();
   }
 
-  public void setLightState(final Boolean isOn){
-    setLightState(isOn, 4);
+  public Boolean setLightState(final Boolean isOn){
+    return setLightState(isOn, 4);
   }
 
   public String getBridge() {
@@ -192,6 +200,17 @@ public class HueLight implements ColoredLight, HomeAutomationExpansion {
           return Optional.absent();
         }
         return Optional.of(groupsMap);
+      }
+
+      LOGGER.error("error=get-groups-failure response_code={}", response.code());
+
+      if(response.code() == 401) {
+
+        if(response.errorBody().string().contains("access_token_expired")) {
+          //Attempt token refresh
+          LOGGER.error("error=token-expired");
+          return Optional.absent();
+        }
       }
     } catch (IOException e) {
       LOGGER.error("error=hue-get-groups msg={}", e.getMessage());
