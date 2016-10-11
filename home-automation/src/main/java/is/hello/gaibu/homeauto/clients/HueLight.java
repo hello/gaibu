@@ -97,10 +97,9 @@ public class HueLight implements ColoredLight, HomeAutomationExpansion {
         LOGGER.error("error=set-state-values-failure response_code={} message={}", configResponse.code(), configResponse.errorBody());
         return Optional.absent();
       }
-      final Map<String, Object> responseMap = configResponse.body();
-      return Optional.of(responseMap);
+      return Optional.of(stateValues);
     } catch (IOException e) {
-      LOGGER.error("error=hue-get-bridges msg={}", e.getMessage());
+      LOGGER.error("error=hue-set-state-values msg={}", e.getMessage());
     }
     return Optional.absent();
   }
