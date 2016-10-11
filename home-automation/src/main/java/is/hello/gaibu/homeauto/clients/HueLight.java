@@ -89,15 +89,17 @@ public class HueLight implements ColoredLight, HomeAutomationExpansion {
 
   }
 
-  public Optional<Map<String, Object>> setStateValues(Map<String, Object> stateValues) {
-    final Call<Map<String, Object>> configCall = service.setGroupState(stateValues);
+  public Optional<List<Map<String, Map<String, String>>>> setStateValues(Map<String, Object> stateValues) {
+    final Call<List<Map<String, Map<String, String>>>> configCall = service.setGroupState(stateValues);
     try {
-      final Response<Map<String, Object>> configResponse = configCall.execute();
+      final Response<List<Map<String, Map<String, String>>>> configResponse = configCall.execute();
       if(!configResponse.isSuccessful()) {
         LOGGER.error("error=set-state-values-failure response_code={} message={}", configResponse.code(), configResponse.errorBody());
         return Optional.absent();
       }
-      return Optional.of(stateValues);
+
+      final List<Map<String, Map<String, String>>> responseMap = configResponse.body();
+      return Optional.of(responseMap);
     } catch (IOException e) {
       LOGGER.error("error=hue-set-state-values msg={}", e.getMessage());
     }
@@ -108,19 +110,19 @@ public class HueLight implements ColoredLight, HomeAutomationExpansion {
     //brightness is a unit8
     final Integer brightValue = value & 0xFF;
     final Map<String, Object> data = Maps.newHashMap(ImmutableMap.of("bri", brightValue));
-    final Optional<Map<String, Object>> responseMap = setStateValues(data);
+    final Optional<List<Map<String, Map<String, String>>>> responseMap = setStateValues(data);
     return responseMap.isPresent();
   }
 
   public Boolean adjustBrightness(final Integer amount) {
     final Map<String, Object> data = Maps.newHashMap(ImmutableMap.of("bri_inc", amount));
-    final Optional<Map<String, Object>> responseMap = setStateValues(data);
+    final Optional<List<Map<String, Map<String, String>>>> responseMap = setStateValues(data);
     return responseMap.isPresent();
   }
 
   public Boolean adjustTemperature(final Integer amount) {
     final Map<String, Object> data = Maps.newHashMap(ImmutableMap.of("ct_inc", amount));
-    final Optional<Map<String, Object>> responseMap = setStateValues(data);
+    final Optional<List<Map<String, Map<String, String>>>> responseMap = setStateValues(data);
     return responseMap.isPresent();
   }
 
@@ -130,7 +132,7 @@ public class HueLight implements ColoredLight, HomeAutomationExpansion {
     data.put("on", isOn);
     data.put("transitiontime", transitionTime);
 
-    final Optional<Map<String, Object>> responseMap = setStateValues(data);
+    final Optional<List<Map<String, Map<String, String>>>> responseMap = setStateValues(data);
     return responseMap.isPresent();
   }
 

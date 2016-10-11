@@ -29,8 +29,9 @@ public interface HueService {
   @GET("/v2/bridges/{bridge_id}/{whitelist_id}/groups")
   Call<Map<String, HueGroup>> getGroups();
 
+  //TODO: Replace these return types with proper Objects
   @PUT("/v2/bridges/{bridge_id}/{whitelist_id}/groups/{group_id}/action")
-  Call<Map<String, Object>> setGroupState(@Body final Map<String, Object> stateValues);
+  Call<List<Map<String, Map<String, String>>>> setGroupState(@Body final Map<String, Object> stateValues);
 
   @GET("/v2/bridges/{bridge_id}/{whitelist_id}/scenes")
   Call<Map<String, HueScene>> getScenes();
