@@ -40,6 +40,7 @@ public class NestThermostat implements ControllableThermostat, HomeAutomationExp
   private OkHttpClient client;
 
   public static String DEFAULT_API_PATH = "https://developer-api.nest.com";
+  public static Integer DEFAULT_TARGET_TEMP_F = 72;
 
   public NestThermostat(final NestService service, final OkHttpClient client){
     this.service = service;
@@ -171,5 +172,10 @@ public class NestThermostat implements ControllableThermostat, HomeAutomationExp
     }
 
     return configs;
+  }
+
+  @Override
+  public Boolean runDefaultAlarmAction() {
+    return setTargetTemperature(DEFAULT_TARGET_TEMP_F);
   }
 }

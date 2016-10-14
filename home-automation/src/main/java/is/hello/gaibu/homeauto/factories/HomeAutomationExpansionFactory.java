@@ -20,8 +20,8 @@ public final class HomeAutomationExpansionFactory {
   private static final Logger LOGGER = LoggerFactory.getLogger(HomeAutomationExpansionFactory.class);
 
 
-  public static Optional<HomeAutomationExpansion> getExpansion(final String hueAppName, final String expansionName, final ExpansionDeviceData data, final String decryptedToken) {
-    switch(Expansion.ServiceName.valueOf(expansionName.toUpperCase())) {
+  public static Optional<HomeAutomationExpansion> getExpansion(final String hueAppName, final Expansion.ServiceName serviceName, final ExpansionDeviceData data, final String decryptedToken) {
+    switch(serviceName) {
       case HUE:
         final HueExpansionDeviceData hueData = (HueExpansionDeviceData) data;
         return Optional.of(HueLight.create(hueAppName, HueLight.DEFAULT_API_PATH, decryptedToken, hueData.bridgeId, hueData.whitelistId, hueData.groupId));

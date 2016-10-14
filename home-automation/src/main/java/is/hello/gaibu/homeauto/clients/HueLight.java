@@ -130,6 +130,7 @@ public class HueLight implements ColoredLight, HomeAutomationExpansion {
 
     final Map<String, Object> data = Maps.newHashMap();
     data.put("on", isOn);
+    data.put("bri", 254);
     data.put("transitiontime", transitionTime);
 
     final Optional<List<Map<String, Map<String, String>>>> responseMap = setStateValues(data);
@@ -253,6 +254,11 @@ public class HueLight implements ColoredLight, HomeAutomationExpansion {
       configs.add(groupConfig);
     }
     return configs;
+  }
+
+  @Override
+  public Boolean runDefaultAlarmAction() {
+    return setLightState(true, 3000);
   }
 
   public Optional<String> createScene(final String sceneName, final String[] lightIds) {

@@ -9,4 +9,5 @@ import is.hello.gaibu.core.models.Configuration;
  */
 public interface HomeAutomationExpansion {
   List<Configuration> getConfigurations();
+  Boolean runDefaultAlarmAction();
 }
