@@ -41,6 +41,7 @@ public class NestThermostat implements ControllableThermostat, HomeAutomationExp
 
   public static String DEFAULT_API_PATH = "https://developer-api.nest.com";
   public static Integer DEFAULT_TARGET_TEMP_F = 72;
+  public static Integer DEFAULT_BUFFER_TIME_SECONDS = 15 * 60; //15 mins
 
   public NestThermostat(final NestService service, final OkHttpClient client){
     this.service = service;
@@ -172,6 +173,11 @@ public class NestThermostat implements ControllableThermostat, HomeAutomationExp
     }
 
     return configs;
+  }
+
+  @Override
+  public Integer getDefaultBufferTimeSeconds() {
+    return DEFAULT_BUFFER_TIME_SECONDS;
   }
 
   @Override

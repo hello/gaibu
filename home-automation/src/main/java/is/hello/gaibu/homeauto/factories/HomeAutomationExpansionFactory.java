@@ -44,4 +44,16 @@ public final class HomeAutomationExpansionFactory {
     }
     return Optional.absent();
   }
+
+  public static Integer getBufferTimeByServiceName(final Expansion.ServiceName serviceName) {
+    switch(serviceName) {
+      case HUE:
+        return HueLight.DEFAULT_BUFFER_TIME_SECONDS;
+      case NEST:
+        return NestThermostat.DEFAULT_BUFFER_TIME_SECONDS;
+    }
+    LOGGER.warn("warn=invalid-service-name");
+    return 0;
+  }
+
 }

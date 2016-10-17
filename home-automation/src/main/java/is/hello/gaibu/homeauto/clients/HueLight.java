@@ -44,6 +44,7 @@ public class HueLight implements ColoredLight, HomeAutomationExpansion {
   public static String DEFAULT_API_PATH = "https://api.meethue.com/";
   public static String DEFAULT_APP_NAME = "sense-dev";
   public static Integer DEFAULT_GROUP_ID = 0;
+  public static Integer DEFAULT_BUFFER_TIME_SECONDS = 5 * 60;
 
   public HueLight(final HueService service, final String appName) {
     this.service = service;
@@ -254,6 +255,11 @@ public class HueLight implements ColoredLight, HomeAutomationExpansion {
       configs.add(groupConfig);
     }
     return configs;
+  }
+
+  @Override
+  public Integer getDefaultBufferTimeSeconds() {
+    return DEFAULT_BUFFER_TIME_SECONDS;
   }
 
   @Override

@@ -9,5 +9,6 @@ import is.hello.gaibu.core.models.Configuration;
  */
 public interface HomeAutomationExpansion {
   List<Configuration> getConfigurations();
+  Integer getDefaultBufferTimeSeconds();
   Boolean runDefaultAlarmAction();
 }
