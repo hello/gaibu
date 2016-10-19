@@ -26,14 +26,14 @@ public class PersistentExpansionStore implements ExpansionStore<Expansion> {
     // This is called by the cache when it doesn't contain the key
     final CacheLoader nameCacheLoader = new CacheLoader<String, Optional<Expansion>>() {
         public Optional<Expansion> load(final String applicationName) {
-            LOGGER.debug("Application '{}' not in cache, fetching from DB", applicationName);
+            LOGGER.info("info=expansion-not-in-cache expansion_name={}", applicationName);
             return getApplicationByNameFromDB(applicationName);
         }
     };
 
     final CacheLoader idCacheLoader = new CacheLoader<Long, Optional<Expansion>>() {
         public Optional<Expansion> load(final Long applicationId) {
-            LOGGER.debug("Application ID '{}' not in cache, fetching from DB", applicationId);
+            LOGGER.info("info=expansion-not-in-cache expansion_id={}", applicationId);
             return getApplicationByIdFromDB(applicationId);
         }
     };
