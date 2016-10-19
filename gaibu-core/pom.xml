@@ -11,6 +11,10 @@
 
     <artifactId>gaibu-core</artifactId>
 
+    <properties>
+        <suripu.version>0.8.0-SNAPSHOT</suripu.version>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>com.amazonaws</groupId>
@@ -18,9 +22,34 @@
             <version>1.11.33</version>
         </dependency>
         <dependency>
+        <groupId>com.amazonaws</groupId>
+        <artifactId>aws-java-sdk-core</artifactId>
+        <version>1.11.33</version>
+        </dependency>
+        <dependency>
             <groupId>com.amazonaws</groupId>
-            <artifactId>aws-java-sdk-core</artifactId>
+            <artifactId>aws-java-sdk-kms</artifactId>
             <version>1.11.33</version>
+        </dependency>
+        <dependency>
+            <groupId>com.squareup.okhttp3</groupId>
+            <artifactId>okhttp</artifactId>
+            <version>3.4.1</version>
+        </dependency>
+        <dependency>
+            <groupId>com.hello.suripu</groupId>
+            <artifactId>suripu-core</artifactId>
+            <version>${suripu.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.yammer.dropwizard</groupId>
+                    <artifactId>dropwizard-core</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.google.guava</groupId>
+                    <artifactId>guava</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
     </dependencies>
 </project>
