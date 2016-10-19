@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 
 import is.hello.gaibu.core.models.Expansion;
 import is.hello.gaibu.core.models.ExpansionDeviceData;
+import is.hello.gaibu.core.models.ValueRange;
 import is.hello.gaibu.homeauto.interfaces.HomeAutomationExpansion;
 import is.hello.gaibu.homeauto.models.HueExpansionDeviceData;
 import is.hello.gaibu.homeauto.models.NestExpansionDeviceData;
@@ -54,6 +55,17 @@ public final class HomeAutomationExpansionFactory {
     }
     LOGGER.warn("warn=invalid-service-name");
     return 0;
+  }
+
+  public static ValueRange getValueRangeByServiceName(final Expansion.ServiceName serviceName) {
+    switch(serviceName) {
+      case HUE:
+        return new ValueRange(HueLight.HUE_MIN_BRIGHTNESS, HueLight.HUE_MAX_BRIGHTNESS, HueLight.DEFAULT_TARGET_BRIGHTNESS);
+      case NEST:
+        return new ValueRange(NestThermostat.NEST_MIN_TEMP_F, NestThermostat.NEST_MAX_TEMP_F, NestThermostat.DEFAULT_TARGET_TEMP_F);
+    }
+    LOGGER.warn("warn=invalid-service-name");
+    return ValueRange.empty();
   }
 
 }

@@ -15,6 +15,7 @@ import java.sql.SQLException;
 
 import is.hello.gaibu.core.models.Expansion;
 import is.hello.gaibu.core.models.MultiDensityImage;
+import is.hello.gaibu.core.models.ValueRange;
 
 public class ExpansionMapper implements ResultSetMapper<Expansion>{
     private static final Logger LOGGER = LoggerFactory.getLogger(ExpansionMapper.class);
@@ -46,7 +47,8 @@ public class ExpansionMapper implements ResultSetMapper<Expansion>{
                 new DateTime(r.getTimestamp("created")),
                 r.getInt("grant_type"),
                 "",
-                Expansion.State.NOT_CONNECTED
+                Expansion.State.NOT_CONNECTED,
+                ValueRange.empty()
         );
     }
 }

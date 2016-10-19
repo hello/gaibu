@@ -47,6 +47,9 @@ public class HueLight implements ColoredLight, HomeAutomationExpansion {
   public static String DEFAULT_APP_NAME = "sense-dev";
   public static Integer DEFAULT_GROUP_ID = 0;
   public static Integer DEFAULT_BUFFER_TIME_SECONDS = 5 * 60;
+  public static Integer DEFAULT_TARGET_BRIGHTNESS = 254;
+  public static Integer HUE_MIN_BRIGHTNESS = 0;
+  public static Integer HUE_MAX_BRIGHTNESS = 254;
 
   public HueLight(final HueService service, final String appName) {
     this.service = service;
@@ -133,7 +136,7 @@ public class HueLight implements ColoredLight, HomeAutomationExpansion {
 
     final Map<String, Object> data = Maps.newHashMap();
     data.put("on", isOn);
-    data.put("bri", 254);
+    data.put("bri", DEFAULT_TARGET_BRIGHTNESS);
     data.put("transitiontime", transitionTime);
 
     final Optional<List<Map<String, Map<String, String>>>> responseMap = setStateValues(data);

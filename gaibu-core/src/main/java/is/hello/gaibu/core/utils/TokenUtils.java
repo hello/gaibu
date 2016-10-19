@@ -33,14 +33,16 @@ import okhttp3.Response;
 public class TokenUtils {
   private static final Logger LOGGER = LoggerFactory.getLogger(TokenUtils.class);
 
-  public static String getDecryptedExternalToken(final ExternalOAuthTokenStore<ExternalToken> externalTokenStore,
+  public static Optional<String> getDecryptedExternalToken(final ExternalOAuthTokenStore<ExternalToken> externalTokenStore,
                                           final Vault tokenKMSVault,
                                           final String deviceId,
                                           final Expansion expansion,
                                           final Boolean isRefreshToken) {
+
     final Optional<ExternalToken> externalTokenOptional = externalTokenStore.getTokenByDeviceId(deviceId, expansion.id);
     if(!externalTokenOptional.isPresent()) {
       LOGGER.warn("warning=token-not-found");
+      return Optional.absent();
     }
 
     ExternalToken externalToken = externalTokenOptional.get();
@@ -51,6 +53,7 @@ public class TokenUtils {
       final Optional<ExternalToken> refreshedTokenOptional = TokenUtils.refreshToken(externalTokenStore, tokenKMSVault, deviceId, expansion, externalToken);
       if(!refreshedTokenOptional.isPresent()){
         LOGGER.error("error=token-refresh-failed device_id={}", deviceId);
+        return Optional.absent();
       }
 
       externalToken = refreshedTokenOptional.get();
@@ -68,8 +71,9 @@ public class TokenUtils {
 
     if(!decryptedTokenOptional.isPresent()) {
       LOGGER.error("error=token-decryption-failure device_id={}", deviceId);
+      return Optional.absent();
     }
-    return decryptedTokenOptional.get();
+    return Optional.of(decryptedTokenOptional.get());
   }
 
   public static Optional<ExternalToken> refreshToken(final ExternalOAuthTokenStore<ExternalToken> externalTokenStore,

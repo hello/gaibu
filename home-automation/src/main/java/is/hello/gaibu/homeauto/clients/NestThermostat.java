@@ -42,6 +42,8 @@ public class NestThermostat implements ControllableThermostat, HomeAutomationExp
   private OkHttpClient client;
 
   public static String DEFAULT_API_PATH = "https://developer-api.nest.com";
+  public static Integer NEST_MIN_TEMP_F = 50;
+  public static Integer NEST_MAX_TEMP_F = 90;
   public static Integer DEFAULT_TARGET_TEMP_F = 72;
   public static Integer DEFAULT_BUFFER_TIME_SECONDS = 15 * 60; //15 mins
 
