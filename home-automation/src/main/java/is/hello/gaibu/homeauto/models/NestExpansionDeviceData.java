@@ -9,8 +9,13 @@ public class NestExpansionDeviceData implements ExpansionDeviceData {
     @JsonProperty("thermostat_id")
     public String thermostatId;
 
-    public NestExpansionDeviceData(@JsonProperty("thermostat_id") final String thermostatId) {
+    @JsonProperty("name")
+    public String name;
+
+    public NestExpansionDeviceData(@JsonProperty("thermostat_id") final String thermostatId,
+                                   @JsonProperty("name") final String name) {
         this.thermostatId = thermostatId;
+        this.name = name;
     }
 
     @Override
@@ -25,5 +30,15 @@ public class NestExpansionDeviceData implements ExpansionDeviceData {
         }
 
         return this.thermostatId;
+    }
+
+    @Override
+    public void setName(final String name) {
+        this.name = name;
+    }
+
+    @Override
+    public String getName() {
+        return this.name;
     }
 }

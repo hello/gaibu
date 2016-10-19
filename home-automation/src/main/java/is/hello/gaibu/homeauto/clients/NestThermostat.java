@@ -16,10 +16,12 @@ import java.util.List;
 import java.util.Map;
 
 import is.hello.gaibu.core.models.Configuration;
+import is.hello.gaibu.core.models.ExpansionData;
 import is.hello.gaibu.homeauto.interceptors.HeaderInterceptor;
 import is.hello.gaibu.homeauto.interceptors.PathParamsInterceptor;
 import is.hello.gaibu.homeauto.interfaces.ControllableThermostat;
 import is.hello.gaibu.homeauto.interfaces.HomeAutomationExpansion;
+import is.hello.gaibu.homeauto.models.NestExpansionDeviceData;
 import is.hello.gaibu.homeauto.models.Thermostat;
 import is.hello.gaibu.homeauto.services.NestService;
 import okhttp3.OkHttpClient;
@@ -173,6 +175,17 @@ public class NestThermostat implements ControllableThermostat, HomeAutomationExp
     }
 
     return configs;
+  }
+
+  @Override
+  public Optional<Configuration> getSelectedConfiguration(final ExpansionData expansionData) {
+    final ObjectMapper mapper = new ObjectMapper();
+    try {
+      final NestExpansionDeviceData nestData = mapper.readValue(expansionData.data, NestExpansionDeviceData.class);
+      return Optional.of(new Configuration(nestData.getId(), nestData.name, true));
+    } catch(IOException ioex) {
+      return Optional.absent();
+    }
   }
 
   @Override

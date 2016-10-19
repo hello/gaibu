@@ -17,10 +17,12 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import is.hello.gaibu.core.models.Configuration;
+import is.hello.gaibu.core.models.ExpansionData;
 import is.hello.gaibu.homeauto.interceptors.HeaderInterceptor;
 import is.hello.gaibu.homeauto.interceptors.PathParamsInterceptor;
 import is.hello.gaibu.homeauto.interfaces.ColoredLight;
 import is.hello.gaibu.homeauto.interfaces.HomeAutomationExpansion;
+import is.hello.gaibu.homeauto.models.HueExpansionDeviceData;
 import is.hello.gaibu.homeauto.models.HueGroup;
 import is.hello.gaibu.homeauto.models.HueLightState;
 import is.hello.gaibu.homeauto.models.HueScene;
@@ -255,6 +257,17 @@ public class HueLight implements ColoredLight, HomeAutomationExpansion {
       configs.add(groupConfig);
     }
     return configs;
+  }
+
+  @Override
+  public Optional<Configuration> getSelectedConfiguration(final ExpansionData expansionData) {
+    final ObjectMapper mapper = new ObjectMapper();
+    try {
+      final HueExpansionDeviceData hueData = mapper.readValue(expansionData.data, HueExpansionDeviceData.class);
+      return Optional.of(new Configuration(hueData.groupId.toString(), hueData.name, true));
+    } catch(IOException ioex) {
+      return Optional.absent();
+    }
   }
 
   @Override
