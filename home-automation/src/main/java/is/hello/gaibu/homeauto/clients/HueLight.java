@@ -7,6 +7,7 @@ import com.google.common.collect.Maps;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hello.suripu.core.models.ValueRange;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -132,11 +133,11 @@ public class HueLight implements ColoredLight, HomeAutomationExpansion {
     return responseMap.isPresent();
   }
 
-  public Boolean setLightState(final Boolean isOn, final Integer transitionTime) {
+  public Boolean setLightState(final Boolean isOn, final Integer transitionTime, final Integer brightness) {
 
     final Map<String, Object> data = Maps.newHashMap();
     data.put("on", isOn);
-    data.put("bri", DEFAULT_TARGET_BRIGHTNESS);
+    data.put("bri", brightness);
     data.put("transitiontime", transitionTime);
 
     final Optional<List<Map<String, Map<String, String>>>> responseMap = setStateValues(data);
@@ -144,7 +145,11 @@ public class HueLight implements ColoredLight, HomeAutomationExpansion {
   }
 
   public Boolean setLightState(final Boolean isOn){
-    return setLightState(isOn, 4);
+    return setLightState(isOn, 4, DEFAULT_TARGET_BRIGHTNESS);
+  }
+
+  public Boolean setLightState(final Boolean isOn, final Integer transitionTime){
+    return setLightState(isOn, transitionTime, DEFAULT_TARGET_BRIGHTNESS);
   }
 
   public String getBridge() {
@@ -281,6 +286,13 @@ public class HueLight implements ColoredLight, HomeAutomationExpansion {
   @Override
   public Boolean runDefaultAlarmAction() {
     return setLightState(true, 3000);
+  }
+
+  @Override
+  public Boolean runAlarmAction(final ValueRange valueRange) {
+    //clamp the brightness value
+    final Integer brightnessValue = Math.max(HUE_MIN_BRIGHTNESS, Math.min(HUE_MAX_BRIGHTNESS, valueRange.min));
+    return setLightState(true, 3000, brightnessValue);
   }
 
   public Optional<String> createScene(final String sceneName, final String[] lightIds) {

@@ -2,6 +2,7 @@ package is.hello.gaibu.core.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.hello.suripu.core.models.ValueRange;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;

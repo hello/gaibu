@@ -2,6 +2,7 @@ package is.hello.gaibu.core.db.mappers;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hello.suripu.core.models.ValueRange;
 
 import org.joda.time.DateTime;
 import org.skife.jdbi.v2.StatementContext;
@@ -15,7 +16,6 @@ import java.sql.SQLException;
 
 import is.hello.gaibu.core.models.Expansion;
 import is.hello.gaibu.core.models.MultiDensityImage;
-import is.hello.gaibu.core.models.ValueRange;
 
 public class ExpansionMapper implements ResultSetMapper<Expansion>{
     private static final Logger LOGGER = LoggerFactory.getLogger(ExpansionMapper.class);
@@ -48,7 +48,7 @@ public class ExpansionMapper implements ResultSetMapper<Expansion>{
                 r.getInt("grant_type"),
                 "",
                 Expansion.State.NOT_CONNECTED,
-                ValueRange.empty()
+                ValueRange.createEmpty()
         );
     }
 }

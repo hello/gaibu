@@ -2,6 +2,8 @@ package is.hello.gaibu.homeauto.interfaces;
 
 import com.google.common.base.Optional;
 
+import com.hello.suripu.core.models.ValueRange;
+
 import java.util.List;
 
 import is.hello.gaibu.core.models.Configuration;
@@ -15,4 +17,5 @@ public interface HomeAutomationExpansion {
   Optional<Configuration> getSelectedConfiguration(ExpansionData expansionData);
   Integer getDefaultBufferTimeSeconds();
   Boolean runDefaultAlarmAction();
+  Boolean runAlarmAction(ValueRange valueRange);
 }
