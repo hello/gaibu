@@ -2,6 +2,7 @@ package is.hello.gaibu.core.db.mappers;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hello.suripu.core.models.ValueRange;
 
 import org.joda.time.DateTime;
 import org.skife.jdbi.v2.StatementContext;
@@ -46,7 +47,8 @@ public class ExpansionMapper implements ResultSetMapper<Expansion>{
                 new DateTime(r.getTimestamp("created")),
                 r.getInt("grant_type"),
                 "",
-                Expansion.State.NOT_CONNECTED
+                Expansion.State.NOT_CONNECTED,
+                ValueRange.createEmpty()
         );
     }
 }

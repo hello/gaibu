@@ -7,6 +7,7 @@ import com.google.common.collect.Maps;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hello.suripu.core.models.ValueRange;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,10 +18,12 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import is.hello.gaibu.core.models.Configuration;
+import is.hello.gaibu.core.models.ExpansionData;
 import is.hello.gaibu.homeauto.interceptors.HeaderInterceptor;
 import is.hello.gaibu.homeauto.interceptors.PathParamsInterceptor;
 import is.hello.gaibu.homeauto.interfaces.ColoredLight;
 import is.hello.gaibu.homeauto.interfaces.HomeAutomationExpansion;
+import is.hello.gaibu.homeauto.models.HueExpansionDeviceData;
 import is.hello.gaibu.homeauto.models.HueGroup;
 import is.hello.gaibu.homeauto.models.HueLightState;
 import is.hello.gaibu.homeauto.models.HueScene;
@@ -44,6 +47,10 @@ public class HueLight implements ColoredLight, HomeAutomationExpansion {
   public static String DEFAULT_API_PATH = "https://api.meethue.com/";
   public static String DEFAULT_APP_NAME = "sense-dev";
   public static Integer DEFAULT_GROUP_ID = 0;
+  public static Integer DEFAULT_BUFFER_TIME_SECONDS = 5 * 60;
+  public static Integer DEFAULT_TARGET_BRIGHTNESS = 254;
+  public static Integer HUE_MIN_BRIGHTNESS = 0;
+  public static Integer HUE_MAX_BRIGHTNESS = 254;
 
   public HueLight(final HueService service, final String appName) {
     this.service = service;
@@ -126,10 +133,11 @@ public class HueLight implements ColoredLight, HomeAutomationExpansion {
     return responseMap.isPresent();
   }
 
-  public Boolean setLightState(final Boolean isOn, final Integer transitionTime) {
+  public Boolean setLightState(final Boolean isOn, final Integer transitionTime, final Integer brightness) {
 
     final Map<String, Object> data = Maps.newHashMap();
     data.put("on", isOn);
+    data.put("bri", brightness);
     data.put("transitiontime", transitionTime);
 
     final Optional<List<Map<String, Map<String, String>>>> responseMap = setStateValues(data);
@@ -137,7 +145,11 @@ public class HueLight implements ColoredLight, HomeAutomationExpansion {
   }
 
   public Boolean setLightState(final Boolean isOn){
-    return setLightState(isOn, 4);
+    return setLightState(isOn, 4, DEFAULT_TARGET_BRIGHTNESS);
+  }
+
+  public Boolean setLightState(final Boolean isOn, final Integer transitionTime){
+    return setLightState(isOn, transitionTime, DEFAULT_TARGET_BRIGHTNESS);
   }
 
   public String getBridge() {
@@ -253,6 +265,34 @@ public class HueLight implements ColoredLight, HomeAutomationExpansion {
       configs.add(groupConfig);
     }
     return configs;
+  }
+
+  @Override
+  public Optional<Configuration> getSelectedConfiguration(final ExpansionData expansionData) {
+    final ObjectMapper mapper = new ObjectMapper();
+    try {
+      final HueExpansionDeviceData hueData = mapper.readValue(expansionData.data, HueExpansionDeviceData.class);
+      return Optional.of(new Configuration(hueData.groupId.toString(), hueData.name, true));
+    } catch(IOException ioex) {
+      return Optional.absent();
+    }
+  }
+
+  @Override
+  public Integer getDefaultBufferTimeSeconds() {
+    return DEFAULT_BUFFER_TIME_SECONDS;
+  }
+
+  @Override
+  public Boolean runDefaultAlarmAction() {
+    return setLightState(true, 3000);
+  }
+
+  @Override
+  public Boolean runAlarmAction(final ValueRange valueRange) {
+    //clamp the brightness value
+    final Integer brightnessValue = Math.max(HUE_MIN_BRIGHTNESS, Math.min(HUE_MAX_BRIGHTNESS, valueRange.min));
+    return setLightState(true, 3000, brightnessValue);
   }
 
   public Optional<String> createScene(final String sceneName, final String[] lightIds) {

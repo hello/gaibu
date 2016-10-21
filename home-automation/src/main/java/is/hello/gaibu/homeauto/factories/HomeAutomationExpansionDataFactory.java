@@ -42,9 +42,9 @@ public final class HomeAutomationExpansionDataFactory {
   public static Optional<ExpansionDeviceData> getEmptyAppData(final Expansion.ServiceName serviceName) {
     switch(serviceName) {
       case HUE:
-        return Optional.of(new HueExpansionDeviceData("", "", 0));
+        return Optional.of(new HueExpansionDeviceData("", "", 0, ""));
       case NEST:
-        return Optional.of(new NestExpansionDeviceData(""));
+        return Optional.of(new NestExpansionDeviceData("", ""));
     }
     return Optional.absent();
   }

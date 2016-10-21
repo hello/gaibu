@@ -2,6 +2,7 @@ package is.hello.gaibu.core.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.hello.suripu.core.models.ValueRange;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -113,6 +114,9 @@ public class Expansion
     @JsonProperty("state")
     public Expansion.State state;
 
+    @JsonProperty("value_range")
+    public ValueRange valueRange;
+
     public Expansion (
             final Long id,
             final ServiceName serviceName,
@@ -129,7 +133,8 @@ public class Expansion
             final DateTime created,
             final Integer grantType,
             final String completionURI,
-            final State state
+            final State state,
+            final ValueRange valueRange
 
     ) {
         this.id = id;
@@ -148,7 +153,7 @@ public class Expansion
         this.grantType = grantType;
         this.completionURI = completionURI;
         this.state = state;
-
+        this.valueRange = valueRange;
     }
 
     public static class Builder {
@@ -168,6 +173,7 @@ public class Expansion
         private Integer grantType;
         private String completionURI;
         private State state;
+        private ValueRange valueRange;
 
         public Builder() {
             created = DateTime.now(DateTimeZone.UTC);
@@ -250,10 +256,15 @@ public class Expansion
             return this;
         }
 
+        public Builder withValueRange(final ValueRange valueRange) {
+            this.valueRange = valueRange;
+            return this;
+        }
+
         public Expansion build() {
             return new Expansion(id, serviceName, deviceName, description, icon, clientId,
                 clientSecret, apiURI, authURI, tokenURI, refreshURI, category, created, grantType,
-                completionURI, state);
+                completionURI, state, valueRange);
         }
     }
 }
