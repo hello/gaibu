@@ -10,11 +10,6 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>gaibu-core</artifactId>
-
-    <properties>
-        <suripu.version>0.8.0-SNAPSHOT</suripu.version>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>com.amazonaws</groupId>
