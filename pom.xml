@@ -105,6 +105,21 @@
       <artifactId>postgresql</artifactId>
       <version>9.2-1004-jdbc4</version>
     </dependency>
+    <dependency>
+      <groupId>com.hello.suripu</groupId>
+      <artifactId>suripu-core</artifactId>
+      <version>${suripu.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>com.yammer.dropwizard</groupId>
+          <artifactId>dropwizard-core</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>com.google.guava</groupId>
+          <artifactId>guava</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
   </dependencies>
 
     <build>
