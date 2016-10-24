@@ -48,9 +48,11 @@ public class HueLight implements ColoredLight, HomeAutomationExpansion {
   public static String DEFAULT_APP_NAME = "sense-dev";
   public static Integer DEFAULT_GROUP_ID = 0;
   public static Integer DEFAULT_BUFFER_TIME_SECONDS = 5 * 60;
-  public static Integer DEFAULT_TARGET_BRIGHTNESS = 254;
-  public static Integer HUE_MIN_BRIGHTNESS = 0;
-  public static Integer HUE_MAX_BRIGHTNESS = 254;
+  public static Integer DEFAULT_TARGET_BRIGHTNESS = 100;
+  public static Integer HUE_API_MIN_BRIGHTNESS = 0;
+  public static Integer HUE_API_MAX_BRIGHTNESS = 254;
+  public static Integer HUE_MIN_BRIGHTNESS = 1;
+  public static Integer HUE_MAX_BRIGHTNESS = 100;
 
   public HueLight(final HueService service, final String appName) {
     this.service = service;
@@ -133,19 +135,22 @@ public class HueLight implements ColoredLight, HomeAutomationExpansion {
     return responseMap.isPresent();
   }
 
-  public Boolean setLightState(final Boolean isOn, final Integer transitionTime, final Integer brightness) {
+  public Boolean setLightState(final Boolean isOn, final Integer transitionTimeSecs, final Integer brightness) {
 
+    //Translate from displayed values to actual
+    final Integer convertedBrightness = convertDisplayedToRealBrightness(brightness);
     final Map<String, Object> data = Maps.newHashMap();
     data.put("on", isOn);
-    data.put("bri", brightness);
-    data.put("transitiontime", transitionTime);
+    data.put("bri", convertedBrightness);
+    //transitionTime is in DeciSeconds
+    data.put("transitiontime", transitionTimeSecs * 10);
 
     final Optional<List<Map<String, Map<String, String>>>> responseMap = setStateValues(data);
     return responseMap.isPresent();
   }
 
   public Boolean setLightState(final Boolean isOn){
-    return setLightState(isOn, 4, DEFAULT_TARGET_BRIGHTNESS);
+    return setLightState(isOn, 1, DEFAULT_TARGET_BRIGHTNESS);
   }
 
   public Boolean setLightState(final Boolean isOn, final Integer transitionTime){
@@ -285,14 +290,14 @@ public class HueLight implements ColoredLight, HomeAutomationExpansion {
 
   @Override
   public Boolean runDefaultAlarmAction() {
-    return setLightState(true, 3000);
+    return setLightState(true, DEFAULT_BUFFER_TIME_SECONDS);
   }
 
   @Override
   public Boolean runAlarmAction(final ValueRange valueRange) {
     //clamp the brightness value
     final Integer brightnessValue = Math.max(HUE_MIN_BRIGHTNESS, Math.min(HUE_MAX_BRIGHTNESS, valueRange.min));
-    return setLightState(true, 3000, brightnessValue);
+    return setLightState(true, DEFAULT_BUFFER_TIME_SECONDS, brightnessValue);
   }
 
   public Optional<String> createScene(final String sceneName, final String[] lightIds) {
@@ -378,5 +383,14 @@ public class HueLight implements ColoredLight, HomeAutomationExpansion {
     setSceneLightStates(createdSceneId, group.lights, defaultSceneLightState);
 
     return Optional.of(createdSceneId);
+  }
+
+  public static Integer convertDisplayedToRealBrightness(final double inputBrightness) {
+    final Integer inputRange = HUE_MAX_BRIGHTNESS - HUE_MIN_BRIGHTNESS;
+    final Double translatedInput = inputBrightness - HUE_MIN_BRIGHTNESS; //removed offset
+    final Integer outputRange = HUE_API_MAX_BRIGHTNESS - HUE_API_MIN_BRIGHTNESS;
+
+    final Double inputPercentage = translatedInput / inputRange;
+    return (int)Math.ceil(inputPercentage * outputRange);
   }
 }
