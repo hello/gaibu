@@ -129,6 +129,14 @@ public class NestThermostat implements ControllableThermostat, HomeAutomationExp
     return responseMap.isPresent();
   }
 
+  public Boolean setTargetTemperatureRange(final Integer lowTemp, final Integer highTemp) {
+    final Map<String, Object> data = Maps.newHashMap();
+    data.put("target_temperature_high_c", highTemp);
+    data.put("target_temperature_low_c", lowTemp);
+    final Optional<Map<String, Object>> responseMap = setStateValues(data);
+    return responseMap.isPresent();
+  }
+
   public Optional<Integer> getTemperature() {
 
     final Optional<Thermostat> thermoOptional = getThermostat();
@@ -239,23 +247,16 @@ public class NestThermostat implements ControllableThermostat, HomeAutomationExp
     }
 
     final Thermostat.HvacMode hvacMode = hvacModeOptional.get();
-    Boolean maxResult = true;
-    Boolean minResult = true;
+    Boolean rangeResult = true;
     Boolean setPointResult = true;
 
 
     switch(hvacMode.value()){
       case "heat-cool":
       case "eco": //Don't actually know if this is valid yet
-        if(valueRange.max > 0) {
-          final Integer maxTemperatureC = Math.max(NEST_MIN_TEMP_C, Math.min(NEST_MAX_TEMP_C, valueRange.max));
-          maxResult = setTargetTemperatureHigh(maxTemperatureC);
-        }
-
-        if(valueRange.min > 0) {
-          final Integer minTemperatureC = Math.max(NEST_MIN_TEMP_C, Math.min(NEST_MAX_TEMP_C, valueRange.min));
-          minResult = setTargetTemperatureLow(minTemperatureC);
-        }
+        final Integer maxTemperatureC = Math.max(NEST_MIN_TEMP_C, Math.min(NEST_MAX_TEMP_C, valueRange.max));
+        final Integer minTemperatureC = Math.max(NEST_MIN_TEMP_C, Math.min(NEST_MAX_TEMP_C, valueRange.min));
+        rangeResult = setTargetTemperatureRange(minTemperatureC, maxTemperatureC);
         break;
       case "heat":
         if(valueRange.min > NEST_MAX_TEMP_C) {
@@ -272,6 +273,6 @@ public class NestThermostat implements ControllableThermostat, HomeAutomationExp
       default:
         return false;
     }
-    return setPointResult && minResult && maxResult;
+    return setPointResult && rangeResult;
   }
 }
