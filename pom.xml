@@ -120,6 +120,14 @@
       <version>${suripu.version}</version>
       <exclusions>
         <exclusion>
+          <groupId>ch.qos.logback</groupId>
+          <artifactId>logback-core</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>ch.qos.logback</groupId>
+          <artifactId>logback-classic</artifactId>
+        </exclusion>
+        <exclusion>
           <groupId>com.yammer.dropwizard</groupId>
           <artifactId>dropwizard-core</artifactId>
         </exclusion>
