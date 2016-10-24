@@ -27,13 +27,15 @@ public final class HomeAutomationExpansionDataFactory {
         try {
           return Optional.of(mapper.readValue(data, HueExpansionDeviceData.class));
         } catch (IOException io) {
-          LOGGER.error("error=bad-expansion-data expansion_name={}", serviceName);
+          LOGGER.warn("warn=missing-expansion-data expansion_name={} data='{}'", serviceName, data);
+          return Optional.absent();
         }
       case NEST:
         try {
           return Optional.of(mapper.readValue(data, NestExpansionDeviceData.class));
         } catch (IOException io) {
-          LOGGER.error("error=bad-expansion-data expansion_name={} data='{}'", serviceName, data);
+          LOGGER.warn("warn=missing-expansion-data expansion_name={} data='{}'", serviceName, data);
+          return Optional.absent();
         }
     }
     return Optional.absent();
