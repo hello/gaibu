@@ -63,7 +63,7 @@ public final class HomeAutomationExpansionFactory {
       case HUE:
         return new ValueRange(HueLight.HUE_MIN_BRIGHTNESS, HueLight.HUE_MAX_BRIGHTNESS);
       case NEST:
-        return new ValueRange(NestThermostat.NEST_MIN_TEMP_F, NestThermostat.NEST_MAX_TEMP_F);
+        return new ValueRange(NestThermostat.NEST_MIN_TEMP_C, NestThermostat.NEST_MAX_TEMP_C);
     }
     LOGGER.warn("warn=invalid-service-name");
     return ValueRange.createEmpty();
