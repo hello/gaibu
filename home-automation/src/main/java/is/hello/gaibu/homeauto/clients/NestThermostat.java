@@ -88,6 +88,8 @@ public class NestThermostat implements ControllableThermostat, HomeAutomationExp
     try {
       final Response<Map<String, Object>> configResponse = configCall.execute();
       //Retrofit doesn't handle 307 redirects for non-GET requests
+      //Per the Nest documentation: "you should cache the host and port number for use in future calls with that user/access token"
+      //TODO: Cache redirect url for accesstoken
       if(configResponse.raw().code() == 307) {
         String location = configResponse.raw().header("Location");
         if (location != null) {
@@ -198,6 +200,21 @@ public class NestThermostat implements ControllableThermostat, HomeAutomationExp
     return Optional.absent();
   }
 
+  public Optional<String> getStructureName(final String structureId) {
+    final Call<String> structureRequest = service.getStructureName(structureId);
+    try {
+      final Response<String> response = structureRequest.execute();
+      if(response.isSuccessful()) {
+        final String structureName = response.body();
+        return Optional.of(structureName);
+      }
+    } catch (IOException e) {
+      LOGGER.error("error=nest-get-structure-name msg={}", e.getMessage());
+    }
+
+    return Optional.absent();
+  }
+
   @Override
   public List<Configuration> getConfigurations() {
     final Optional<Map<String, Thermostat>> configsMapOptional = getThermostats();
@@ -209,7 +226,12 @@ public class NestThermostat implements ControllableThermostat, HomeAutomationExp
 
     final List<Configuration> configs = Lists.newArrayList();
     for(final Map.Entry<String, Thermostat> entry : thermoMap.entrySet()) {
-      final Configuration groupConfig = new Configuration(entry.getKey(), entry.getValue().getName(), false);
+      final Optional<String> structureNameOptional = getStructureName(entry.getValue().getStructureId());
+      String configName = entry.getValue().getName();
+      if(structureNameOptional.isPresent()) {
+        configName = structureNameOptional.get() + " (" + entry.getValue().getName() + ")";
+      }
+      final Configuration groupConfig = new Configuration(entry.getKey(), configName, false);
       configs.add(groupConfig);
     }
 

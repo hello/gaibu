@@ -113,6 +113,7 @@ public class Thermostat{
   private String locked_temp_max_c;
   private String label;
   private String name;
+  private String structureId;
 
   /**
    * @return System ability to cool (AC)
@@ -440,6 +441,18 @@ public class Thermostat{
   public String getName() {
     return this.name;
   }
+
+  @JsonProperty("structure_id")
+  public String getStructureId() {
+    return this.structureId;
+  }
+
+  @JsonProperty("structure_id")
+  public void setStructureId(final String structureId) {
+    this.structureId = structureId;
+  }
+
+
 
 //  @Override
 //  public String toString() {

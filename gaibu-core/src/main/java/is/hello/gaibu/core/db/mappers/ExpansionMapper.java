@@ -35,6 +35,7 @@ public class ExpansionMapper implements ResultSetMapper<Expansion>{
                 r.getLong("id"),
                 Expansion.ServiceName.valueOf(r.getString("service_name").toUpperCase()),
                 r.getString("device_name"),
+                r.getString("company_name"),
                 r.getString("description"),
                 icon,
                 r.getString("client_id"),

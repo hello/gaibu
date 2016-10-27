@@ -71,6 +71,9 @@ public class Expansion
     @JsonProperty("device_name")
     public final String deviceName;
 
+    @JsonProperty("company_name")
+    public final String companyName;
+
     @JsonProperty("description")
     public final String description;
 
@@ -121,6 +124,7 @@ public class Expansion
             final Long id,
             final ServiceName serviceName,
             final String deviceName,
+            final String companyName,
             final String description,
             final MultiDensityImage icon,
             final String clientId,
@@ -140,6 +144,7 @@ public class Expansion
         this.id = id;
         this.serviceName = serviceName;
         this.deviceName = deviceName;
+        this.companyName = companyName;
         this.description = description;
         this.icon = icon;
         this.clientId = clientId;
@@ -160,6 +165,7 @@ public class Expansion
         private Long id;
         private ServiceName serviceName;
         private String deviceName;
+        private String companyName;
         private String description;
         private MultiDensityImage icon;
         private String clientId;
@@ -191,6 +197,11 @@ public class Expansion
 
         public Builder withDeviceName(final String deviceName) {
             this.deviceName = deviceName;
+            return this;
+        }
+
+        public Builder withCompanyName(final String companyName) {
+            this.companyName = companyName;
             return this;
         }
 
@@ -262,7 +273,7 @@ public class Expansion
         }
 
         public Expansion build() {
-            return new Expansion(id, serviceName, deviceName, description, icon, clientId,
+            return new Expansion(id, serviceName, deviceName, companyName, description, icon, clientId,
                 clientSecret, apiURI, authURI, tokenURI, refreshURI, category, created, grantType,
                 completionURI, state, valueRange);
         }
