@@ -354,38 +354,6 @@ public class HueLight implements ColoredLight, HomeAutomationExpansion {
     }
   }
 
-//  public Optional<String> createDefaultScene(final Integer groupId) {
-//    final Optional<Map<String, HueGroup>> optionalGroupsMap = getGroups();
-//    if(!optionalGroupsMap.isPresent()) {
-//      return Optional.absent();
-//    }
-//
-//    final Map<String, HueGroup> groupsMap = optionalGroupsMap.get();
-//
-//    if(!groupsMap.containsKey(groupId.toString())) {
-//      LOGGER.error("error=scene-create-unknown-group group_id={}", groupId);
-//    }
-//
-//    final HueGroup group = groupsMap.get(groupId.toString());
-//
-//    final Optional<String> createdSceneIdOptional = createScene("Sense Rise", group.lights);
-//    if(!createdSceneIdOptional.isPresent()) {
-//      LOGGER.error("error=scene-create-failed group_id={}", groupId);
-//      return Optional.absent();
-//    }
-//
-//    final String createdSceneId = createdSceneIdOptional.get();
-//
-//    final HueLightState defaultSceneLightState = new HueLightState.Builder()
-//        .withOn(true)
-//        .withCT(500)
-//        .withBrightness(254)
-//        .build();
-//    setSceneLightStates(createdSceneId, group.lights, defaultSceneLightState);
-//
-//    return Optional.of(createdSceneId);
-//  }
-
   public static Integer convertDisplayedToRealBrightness(final double inputBrightness) {
     final Integer inputRange = HUE_MAX_BRIGHTNESS - HUE_MIN_BRIGHTNESS;
     final Double translatedInput = inputBrightness - HUE_MIN_BRIGHTNESS; //removed offset

@@ -140,10 +140,12 @@ public class NestThermostat implements ControllableThermostat, HomeAutomationExp
     return responseMap.isPresent();
   }
 
-  public Boolean setTargetTemperatureRange(final Integer lowTemp, final Integer highTemp) {
+  public Boolean setTargetTemperatureRange(final Integer lowTemp, final Integer highTemp, final TemperatureUnit unit) {
+    final String targetValueNameHigh = (unit == TemperatureUnit.FAHRENHEIT) ? "target_temperature_high_f" : "target_temperature_high_c";
+    final String targetValueNameLow = (unit == TemperatureUnit.FAHRENHEIT) ? "target_temperature_low_f" : "target_temperature_low_c";
     final Map<String, Object> data = Maps.newHashMap();
-    data.put("target_temperature_high_c", highTemp);
-    data.put("target_temperature_low_c", lowTemp);
+    data.put(targetValueNameHigh, highTemp);
+    data.put(targetValueNameLow, lowTemp);
     final Optional<Map<String, Object>> responseMap = setStateValues(data);
     return responseMap.isPresent();
   }
@@ -292,19 +294,19 @@ public class NestThermostat implements ControllableThermostat, HomeAutomationExp
       case "eco": //Don't actually know if this is valid yet
         final Integer maxTemperatureC = Math.max(minTempInUnits, Math.min(maxTempInUnits, valueRange.max));
         final Integer minTemperatureC = Math.max(minTempInUnits, Math.min(maxTempInUnits, valueRange.min));
-        rangeResult = setTargetTemperatureRange(minTemperatureC, maxTemperatureC);
+        rangeResult = setTargetTemperatureRange(minTemperatureC, maxTemperatureC, unit);
         break;
       case "heat":
         if(valueRange.min > maxTempInUnits) {
           return false;
         }
-        setPointResult = setTargetTemperature(Math.max(minTempInUnits, Math.min(maxTempInUnits, valueRange.min)));
+        setPointResult = setTargetTemperature(Math.max(minTempInUnits, Math.min(maxTempInUnits, valueRange.min)), unit);
         break;
       case "cool":
         if(valueRange.max < minTempInUnits) {
           return false;
         }
-        setPointResult = setTargetTemperature(Math.max(minTempInUnits, Math.min(maxTempInUnits, valueRange.max)));
+        setPointResult = setTargetTemperature(Math.max(minTempInUnits, Math.min(maxTempInUnits, valueRange.max)), unit);
         break;
       default:
         return false;
