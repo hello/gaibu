@@ -150,8 +150,7 @@ public class HueLight implements ColoredLight, HomeAutomationExpansion {
   }
 
   public Boolean setLightState(final Boolean isOn){
-    final Integer targetBrightness = (isOn) ? DEFAULT_TARGET_BRIGHTNESS : HUE_API_MIN_BRIGHTNESS;
-    return setLightState(isOn, 1, targetBrightness);
+    return setLightState(isOn, 1);
   }
 
   public Boolean setLightState(final Boolean isOn, final Integer transitionTime){
