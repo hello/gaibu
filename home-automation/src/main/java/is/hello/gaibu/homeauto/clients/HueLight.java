@@ -150,11 +150,12 @@ public class HueLight implements ColoredLight, HomeAutomationExpansion {
   }
 
   public Boolean setLightState(final Boolean isOn){
-    return setLightState(isOn, 1, DEFAULT_TARGET_BRIGHTNESS);
+    return setLightState(isOn, 1);
   }
 
   public Boolean setLightState(final Boolean isOn, final Integer transitionTime){
-    return setLightState(isOn, transitionTime, DEFAULT_TARGET_BRIGHTNESS);
+    final Integer targetBrightness = (isOn) ? DEFAULT_TARGET_BRIGHTNESS : HUE_API_MIN_BRIGHTNESS;
+    return setLightState(isOn, transitionTime, targetBrightness);
   }
 
   public String getBridge() {
@@ -351,38 +352,6 @@ public class HueLight implements ColoredLight, HomeAutomationExpansion {
         LOGGER.error("error=scene-light-state msg={}", e.getMessage());
       }
     }
-  }
-
-  public Optional<String> createDefaultScene(final Integer groupId) {
-    final Optional<Map<String, HueGroup>> optionalGroupsMap = getGroups();
-    if(!optionalGroupsMap.isPresent()) {
-      return Optional.absent();
-    }
-
-    final Map<String, HueGroup> groupsMap = optionalGroupsMap.get();
-
-    if(!groupsMap.containsKey(groupId.toString())) {
-      LOGGER.error("error=scene-create-unknown-group group_id={}", groupId);
-    }
-
-    final HueGroup group = groupsMap.get(groupId.toString());
-
-    final Optional<String> createdSceneIdOptional = createScene("Sense Rise", group.lights);
-    if(!createdSceneIdOptional.isPresent()) {
-      LOGGER.error("error=scene-create-failed group_id={}", groupId);
-      return Optional.absent();
-    }
-
-    final String createdSceneId = createdSceneIdOptional.get();
-
-    final HueLightState defaultSceneLightState = new HueLightState.Builder()
-        .withOn(true)
-        .withCT(500)
-        .withBrightness(254)
-        .build();
-    setSceneLightStates(createdSceneId, group.lights, defaultSceneLightState);
-
-    return Optional.of(createdSceneId);
   }
 
   public static Integer convertDisplayedToRealBrightness(final double inputBrightness) {

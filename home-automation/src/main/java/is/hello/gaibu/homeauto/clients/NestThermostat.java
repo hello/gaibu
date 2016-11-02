@@ -8,6 +8,7 @@ import com.google.common.collect.Maps;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hello.suripu.core.models.ValueRange;
+import com.hello.suripu.core.preferences.TemperatureUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,7 +46,10 @@ public class NestThermostat implements ControllableThermostat, HomeAutomationExp
   public static String DEFAULT_API_PATH = "https://developer-api.nest.com";
   public static Integer NEST_MIN_TEMP_C = 9;
   public static Integer NEST_MAX_TEMP_C = 32;
+  public static Integer NEST_MIN_TEMP_F = 50;
+  public static Integer NEST_MAX_TEMP_F = 90;
   public static Integer DEFAULT_TARGET_TEMP_C = 22;
+  public static Integer TARGET_TEMP_RANGE_BUFFER = 2;
   public static Integer DEFAULT_BUFFER_TIME_SECONDS = 15 * 60; //15 mins
 
   public NestThermostat(final NestService service, final OkHttpClient client){
@@ -114,7 +118,12 @@ public class NestThermostat implements ControllableThermostat, HomeAutomationExp
   }
 
   public Boolean setTargetTemperature(final Integer temp) {
-    final Map<String, Object> data = Maps.newHashMap(ImmutableMap.of("target_temperature_c", temp));
+    return setTargetTemperature(temp, TemperatureUnit.CELSIUS);
+  }
+
+  public Boolean setTargetTemperature(final Integer temp, final TemperatureUnit unit) {
+    final String targetValueName = (unit == TemperatureUnit.FAHRENHEIT) ? "target_temperature_f" : "target_temperature_c";
+    final Map<String, Object> data = Maps.newHashMap(ImmutableMap.of(targetValueName, temp));
     final Optional<Map<String, Object>> responseMap = setStateValues(data);
     return responseMap.isPresent();
   }
@@ -131,10 +140,12 @@ public class NestThermostat implements ControllableThermostat, HomeAutomationExp
     return responseMap.isPresent();
   }
 
-  public Boolean setTargetTemperatureRange(final Integer lowTemp, final Integer highTemp) {
+  public Boolean setTargetTemperatureRange(final Integer lowTemp, final Integer highTemp, final TemperatureUnit unit) {
+    final String targetValueNameHigh = (unit == TemperatureUnit.FAHRENHEIT) ? "target_temperature_high_f" : "target_temperature_high_c";
+    final String targetValueNameLow = (unit == TemperatureUnit.FAHRENHEIT) ? "target_temperature_low_f" : "target_temperature_low_c";
     final Map<String, Object> data = Maps.newHashMap();
-    data.put("target_temperature_high_c", highTemp);
-    data.put("target_temperature_low_c", lowTemp);
+    data.put(targetValueNameHigh, highTemp);
+    data.put(targetValueNameLow, lowTemp);
     final Optional<Map<String, Object>> responseMap = setStateValues(data);
     return responseMap.isPresent();
   }
@@ -261,6 +272,11 @@ public class NestThermostat implements ControllableThermostat, HomeAutomationExp
 
   @Override
   public Boolean runAlarmAction(ValueRange valueRange) {
+    return setTempFromValueRange(valueRange, TemperatureUnit.CELSIUS);
+  }
+  public Boolean setTempFromValueRange(final ValueRange valueRange, final TemperatureUnit unit) {
+    final Integer minTempInUnits = (unit == TemperatureUnit.FAHRENHEIT) ? NEST_MIN_TEMP_F : NEST_MIN_TEMP_C;
+    final Integer maxTempInUnits = (unit == TemperatureUnit.FAHRENHEIT) ? NEST_MAX_TEMP_F : NEST_MAX_TEMP_C;
 
     final Optional<Thermostat.HvacMode> hvacModeOptional = getMode();
     if(!hvacModeOptional.isPresent()) {
@@ -276,21 +292,21 @@ public class NestThermostat implements ControllableThermostat, HomeAutomationExp
     switch(hvacMode.value()){
       case "heat-cool":
       case "eco": //Don't actually know if this is valid yet
-        final Integer maxTemperatureC = Math.max(NEST_MIN_TEMP_C, Math.min(NEST_MAX_TEMP_C, valueRange.max));
-        final Integer minTemperatureC = Math.max(NEST_MIN_TEMP_C, Math.min(NEST_MAX_TEMP_C, valueRange.min));
-        rangeResult = setTargetTemperatureRange(minTemperatureC, maxTemperatureC);
+        final Integer maxTemperatureC = Math.max(minTempInUnits, Math.min(maxTempInUnits, valueRange.max));
+        final Integer minTemperatureC = Math.max(minTempInUnits, Math.min(maxTempInUnits, valueRange.min));
+        rangeResult = setTargetTemperatureRange(minTemperatureC, maxTemperatureC, unit);
         break;
       case "heat":
-        if(valueRange.min > NEST_MAX_TEMP_C) {
+        if(valueRange.min > maxTempInUnits) {
           return false;
         }
-        setPointResult = setTargetTemperature(Math.max(NEST_MIN_TEMP_C, Math.min(NEST_MAX_TEMP_C, valueRange.min)));
+        setPointResult = setTargetTemperature(Math.max(minTempInUnits, Math.min(maxTempInUnits, valueRange.min)), unit);
         break;
       case "cool":
-        if(valueRange.max < NEST_MIN_TEMP_C) {
+        if(valueRange.max < minTempInUnits) {
           return false;
         }
-        setPointResult = setTargetTemperature(Math.max(NEST_MIN_TEMP_C, Math.min(NEST_MAX_TEMP_C, valueRange.max)));
+        setPointResult = setTargetTemperature(Math.max(minTempInUnits, Math.min(maxTempInUnits, valueRange.max)), unit);
         break;
       default:
         return false;
