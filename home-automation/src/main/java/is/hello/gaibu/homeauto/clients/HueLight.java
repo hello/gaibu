@@ -68,7 +68,7 @@ public class HueLight implements ColoredLight, HomeAutomationExpansion {
     final PathParamsInterceptor pathParamsInterceptor = new PathParamsInterceptor(pathParams);
     final HeaderInterceptor headerInterceptor = new HeaderInterceptor(accessToken);
     final OkHttpClient client = new OkHttpClient.Builder()
-//        .addInterceptor(headerInterceptor)
+        .addInterceptor(headerInterceptor)
         .addInterceptor(pathParamsInterceptor)
         .readTimeout(10, TimeUnit.SECONDS)
         .build();
