@@ -16,5 +16,11 @@
             <artifactId>gaibu-core</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.hello.suripu</groupId>
+            <artifactId>suripu-core</artifactId>
+            <version>${suripu.version}</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 </project>

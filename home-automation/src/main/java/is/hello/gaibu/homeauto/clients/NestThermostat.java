@@ -1,22 +1,13 @@
 package is.hello.gaibu.homeauto.clients;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hello.suripu.core.models.ValueRange;
 import com.hello.suripu.core.preferences.TemperatureUnit;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-
 import is.hello.gaibu.core.models.Configuration;
 import is.hello.gaibu.core.models.ExpansionData;
 import is.hello.gaibu.homeauto.interceptors.HeaderInterceptor;
@@ -28,10 +19,16 @@ import is.hello.gaibu.homeauto.models.Thermostat;
 import is.hello.gaibu.homeauto.services.NestService;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import retrofit2.Call;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.jackson.JacksonConverterFactory;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -85,6 +82,10 @@ public class NestThermostat implements ControllableThermostat, HomeAutomationExp
 
   public static NestThermostat create(final String apiPath, final String accessToken) {
     return NestThermostat.create(apiPath, accessToken, "");
+  }
+
+  public static NestThermostat create(final String accessToken) {
+      return NestThermostat.create(DEFAULT_API_PATH, accessToken);
   }
 
   public Optional<Map<String, Object>> setStateValues(Map<String, Object> stateValues) {
@@ -313,4 +314,16 @@ public class NestThermostat implements ControllableThermostat, HomeAutomationExp
     }
     return setPointResult && rangeResult;
   }
+
+    public Boolean deAuthorize(final String accessToken) {
+        final Call<Boolean> call = service.delete(accessToken);
+        try {
+            final Response response = call.execute();
+            return response.isSuccessful();
+        } catch (IOException e) {
+            LOGGER.error("error=deauth message={}", e.getMessage());
+        }
+
+        return false;
+    }
 }

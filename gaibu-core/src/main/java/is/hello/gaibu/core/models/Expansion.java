@@ -58,7 +58,8 @@ public class Expansion
         CONNECTED_ON,   //Expansion has been authorized/authenticated, and the user has enabled it in the app
         CONNECTED_OFF,  //Expansion has been authorized/authenticated, but the user has disabled it in the app
         REVOKED,        //User has requested the revocation of all credentials for the Expansion
-        NOT_CONFIGURED  //Expansion is authenticated, but lacks required configuration information to function
+        NOT_CONFIGURED,  //Expansion is authenticated, but lacks required configuration information to function
+        NOT_AVAILABLE // Expansion is not available. Controlled by feature flipper
     }
 
 
