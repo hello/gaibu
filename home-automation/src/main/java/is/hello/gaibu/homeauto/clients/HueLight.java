@@ -13,6 +13,7 @@ import is.hello.gaibu.homeauto.interceptors.HeaderInterceptor;
 import is.hello.gaibu.homeauto.interceptors.PathParamsInterceptor;
 import is.hello.gaibu.homeauto.interfaces.ColoredLight;
 import is.hello.gaibu.homeauto.interfaces.HomeAutomationExpansion;
+import is.hello.gaibu.homeauto.models.AlarmActionStatus;
 import is.hello.gaibu.homeauto.models.HueExpansionDeviceData;
 import is.hello.gaibu.homeauto.models.HueGroup;
 import is.hello.gaibu.homeauto.models.HueLightState;
@@ -38,8 +39,9 @@ import java.util.concurrent.TimeUnit;
 public class HueLight implements ColoredLight, HomeAutomationExpansion {
   private static final Logger LOGGER = LoggerFactory.getLogger(HueLight.class);
 
-  private HueService service;
+  private final HueService service;
   private final String appName;
+  private final String bridgeId;
 
   public static String DEFAULT_API_PATH = "https://api.meethue.com/";
   public static String DEFAULT_APP_NAME = "sense-dev";
@@ -51,9 +53,10 @@ public class HueLight implements ColoredLight, HomeAutomationExpansion {
   public static Integer HUE_MIN_BRIGHTNESS = 1;
   public static Integer HUE_MAX_BRIGHTNESS = 100;
 
-  public HueLight(final HueService service, final String appName) {
+  public HueLight(final HueService service, final String appName, final String bridgeId) {
     this.service = service;
     this.appName = appName;
+    this.bridgeId = bridgeId;
   }
 
   public static HueLight create(final String appName, final String apiPath, final String accessToken, final String bridgeId, final String whitelistId, final Integer groupId) {
@@ -80,7 +83,7 @@ public class HueLight implements ColoredLight, HomeAutomationExpansion {
         .build();
 
     final HueService service = retrofit.create(HueService.class);
-    return new HueLight(service, appName);
+    return new HueLight(service, appName, bridgeId);
   }
 
   public static HueLight create(final String appName, final String accessToken){
@@ -100,14 +103,15 @@ public class HueLight implements ColoredLight, HomeAutomationExpansion {
     try {
       final Response<List<Map<String, Map<String, String>>>> configResponse = configCall.execute();
       if(!configResponse.isSuccessful()) {
-        LOGGER.error("error=set-state-values-failure response_code={} message={}", configResponse.code(), configResponse.errorBody());
+        LOGGER.error("error=set-state-values-failure response_code={} message={} bridge_id={}",
+                configResponse.code(), configResponse.errorBody(), bridgeId);
         return Optional.absent();
       }
 
       final List<Map<String, Map<String, String>>> responseMap = configResponse.body();
       return Optional.of(responseMap);
     } catch (IOException e) {
-      LOGGER.error("error=hue-set-state-values msg={}", e.getMessage());
+      LOGGER.error("error=hue-set-state-values msg={} bridge_id", e.getMessage(), bridgeId);
     }
     return Optional.absent();
   }
@@ -163,7 +167,7 @@ public class HueLight implements ColoredLight, HomeAutomationExpansion {
         return response.body().get(0).get("id");
       }
     } catch (IOException e) {
-      LOGGER.error("error=hue-get-bridges msg={}", e.getMessage());
+      LOGGER.error("error=hue-get-bridges msg={} bridge_id={}", e.getMessage(), bridgeId);
     }
 
     return "";
@@ -179,7 +183,7 @@ public class HueLight implements ColoredLight, HomeAutomationExpansion {
         LOGGER.info("Link Button Pressed");
       }
     } catch (IOException e) {
-      LOGGER.error("error=hue-get-bridges msg={}", e.getMessage());
+      LOGGER.error("error=hue-get-bridges msg={} bridge_id={}", e.getMessage(), bridgeId);
     }
 
     final Map<String, String> deviceInfo = Maps.newHashMap(ImmutableMap.of("devicetype", appName));
@@ -201,7 +205,7 @@ public class HueLight implements ColoredLight, HomeAutomationExpansion {
 
       }
     } catch (IOException e) {
-      LOGGER.error("error=hue-get-bridges msg={}", e.getMessage());
+      LOGGER.error("error=hue-get-bridges msg={} bridge_id={}", e.getMessage(), bridgeId);
     }
     return Optional.absent();
   }
@@ -218,18 +222,18 @@ public class HueLight implements ColoredLight, HomeAutomationExpansion {
         return Optional.of(groupsMap);
       }
 
-      LOGGER.error("error=get-groups-failure response_code={}", response.code());
+      LOGGER.error("error=get-groups-failure response_code={} bridge_id={}", response.code(), bridgeId);
 
       if(response.code() == 401) {
 
         if(response.errorBody().string().contains("access_token_expired")) {
           //Attempt token refresh
-          LOGGER.error("error=token-expired");
+          LOGGER.error("error=token-expired bridge_id={}", bridgeId);
           return Optional.absent();
         }
       }
     } catch (IOException e) {
-      LOGGER.error("error=hue-get-groups msg={}", e.getMessage());
+      LOGGER.error("error=hue-get-groups msg={} bridge_id={}", e.getMessage(), bridgeId);
     }
 
     return Optional.absent();
@@ -247,7 +251,7 @@ public class HueLight implements ColoredLight, HomeAutomationExpansion {
         return Optional.of(scenesMap);
       }
     } catch (IOException e) {
-      LOGGER.error("error=hue-get-groups msg={}", e.getMessage());
+      LOGGER.error("error=hue-get-groups msg={} bridge_id={}", e.getMessage(), bridgeId);
     }
 
     return Optional.absent();
@@ -287,15 +291,25 @@ public class HueLight implements ColoredLight, HomeAutomationExpansion {
   }
 
   @Override
-  public Boolean runDefaultAlarmAction() {
-    return setLightState(true, DEFAULT_BUFFER_TIME_SECONDS);
+  public AlarmActionStatus runDefaultAlarmAction() {
+    final boolean success = setLightState(true, DEFAULT_BUFFER_TIME_SECONDS);
+    if(success) {
+      return AlarmActionStatus.OK;
+    }
+    LOGGER.error("error=set-light-state-failed bridge_id={}", bridgeId);
+    return AlarmActionStatus.UNKOWN;
   }
 
   @Override
-  public Boolean runAlarmAction(final ValueRange valueRange) {
+  public AlarmActionStatus runAlarmAction(final ValueRange valueRange) {
     //clamp the brightness value
     final Integer brightnessValue = Math.max(HUE_MIN_BRIGHTNESS, Math.min(HUE_MAX_BRIGHTNESS, valueRange.min));
-    return setLightState(true, DEFAULT_BUFFER_TIME_SECONDS, brightnessValue);
+    final boolean success = setLightState(true, DEFAULT_BUFFER_TIME_SECONDS, brightnessValue);
+    if(success) {
+      return AlarmActionStatus.OK;
+    }
+    LOGGER.error("error=set-light-state-failed bridge_id={}", bridgeId);
+    return AlarmActionStatus.UNKOWN;
   }
 
   public Optional<String> createScene(final String sceneName, final String[] lightIds) {

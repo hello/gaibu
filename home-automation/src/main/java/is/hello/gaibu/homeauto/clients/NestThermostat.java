@@ -15,6 +15,7 @@ import is.hello.gaibu.homeauto.interceptors.HeaderInterceptor;
 import is.hello.gaibu.homeauto.interceptors.PathParamsInterceptor;
 import is.hello.gaibu.homeauto.interfaces.ControllableThermostat;
 import is.hello.gaibu.homeauto.interfaces.HomeAutomationExpansion;
+import is.hello.gaibu.homeauto.models.AlarmActionStatus;
 import is.hello.gaibu.homeauto.models.NestExpansionDeviceData;
 import is.hello.gaibu.homeauto.models.Thermostat;
 import is.hello.gaibu.homeauto.services.NestService;
@@ -39,8 +40,9 @@ import java.util.Map;
 public class NestThermostat implements ControllableThermostat, HomeAutomationExpansion {
   private static final Logger LOGGER = LoggerFactory.getLogger(NestThermostat.class);
 
-  private NestService service;
-  private OkHttpClient client;
+  private final NestService service;
+  private final OkHttpClient client;
+  private final String thermostatId;
 
   public static String DEFAULT_API_PATH = "https://developer-api.nest.com";
   public static Integer NEST_MIN_TEMP_C = 9;
@@ -51,9 +53,10 @@ public class NestThermostat implements ControllableThermostat, HomeAutomationExp
   public static Integer TARGET_TEMP_RANGE_BUFFER = 2;
   public static Integer DEFAULT_BUFFER_TIME_SECONDS = 15 * 60; //15 mins
 
-  public NestThermostat(final NestService service, final OkHttpClient client){
+  public NestThermostat(final NestService service, final OkHttpClient client, final String thermostatId){
     this.service = service;
     this.client = client;
+    this.thermostatId = thermostatId;
   }
 
   public static NestThermostat create(final String apiPath, final String accessToken, final String thermostatId) {
@@ -79,7 +82,7 @@ public class NestThermostat implements ControllableThermostat, HomeAutomationExp
         .build();
 
     final NestService service = retrofit.create(NestService.class);
-    return new NestThermostat(service, client);
+    return new NestThermostat(service, client, thermostatId);
   }
 
   public static NestThermostat create(final String apiPath, final String accessToken) {
@@ -281,51 +284,69 @@ public class NestThermostat implements ControllableThermostat, HomeAutomationExp
   }
 
   @Override
-  public Boolean runDefaultAlarmAction() {
-    return setTargetTemperature(DEFAULT_TARGET_TEMP_C);
+  public AlarmActionStatus runDefaultAlarmAction() {
+    boolean success = setTargetTemperature(DEFAULT_TARGET_TEMP_C);
+    if(success) {
+      return AlarmActionStatus.OK;
+    }
+    return AlarmActionStatus.UNKOWN;
   }
 
   @Override
-  public Boolean runAlarmAction(ValueRange valueRange) {
+  public AlarmActionStatus runAlarmAction(ValueRange valueRange) {
     return setTempFromValueRange(valueRange, TemperatureUnit.CELSIUS);
   }
-  public Boolean setTempFromValueRange(final ValueRange valueRange, final TemperatureUnit unit) {
+
+  public AlarmActionStatus setTempFromValueRange(final ValueRange valueRange, final TemperatureUnit unit) {
     final Integer minTempInUnits = (unit == TemperatureUnit.FAHRENHEIT) ? NEST_MIN_TEMP_F : NEST_MIN_TEMP_C;
     final Integer maxTempInUnits = (unit == TemperatureUnit.FAHRENHEIT) ? NEST_MAX_TEMP_F : NEST_MAX_TEMP_C;
 
     final Optional<Thermostat.HvacMode> hvacModeOptional = getMode();
     if(!hvacModeOptional.isPresent()) {
       LOGGER.error("error=hvac-mode-failure expansion_name=Nest");
-      return false;
+      return AlarmActionStatus.INVALID_HVAC;
     }
 
     final Thermostat.HvacMode hvacMode = hvacModeOptional.get();
     Boolean rangeResult = true;
     Boolean setPointResult = true;
 
-
-    switch(hvacMode.value()){
-      case "heat-cool":
-      case "eco": //Don't actually know if this is valid yet
+    LOGGER.info("thermostat_id={} hvac_mode={}", thermostatId, hvacMode);
+    switch(hvacMode){
+      case HEAT_COOL:
+      case ECO: //Don't actually know if this is valid yet
         final Integer maxTemperatureC = Math.max(minTempInUnits, Math.min(maxTempInUnits, valueRange.max));
         final Integer minTemperatureC = Math.max(minTempInUnits, Math.min(maxTempInUnits, valueRange.min));
         rangeResult = setTargetTemperatureRange(minTemperatureC, maxTemperatureC, unit);
         break;
-      case "heat":
+      case HEAT:
         if(valueRange.min > maxTempInUnits) {
-          return false;
+          LOGGER.error("error=value-range-too-high hvac_mode={} value_range_min={} max_temp_units={}", hvacMode, valueRange.min, maxTempInUnits);
+          return AlarmActionStatus.INVALID_TEMP_RANGE;
         }
+
         setPointResult = setTargetTemperature(Math.max(minTempInUnits, Math.min(maxTempInUnits, valueRange.min)), unit);
         break;
-      case "cool":
+      case COOL:
         if(valueRange.max < minTempInUnits) {
-          return false;
+          LOGGER.error("error=value-range-too-high hvac_mode={} value_range_max={} min_temp_units={}", hvacMode, valueRange.max, minTempInUnits);
+          return AlarmActionStatus.INVALID_TEMP_RANGE;
         }
         setPointResult = setTargetTemperature(Math.max(minTempInUnits, Math.min(maxTempInUnits, valueRange.max)), unit);
         break;
+      case OFF:
+        return AlarmActionStatus.OFF_OR_LOCKED;
       default:
-        return false;
+        return AlarmActionStatus.INVALID_HVAC;
     }
-    return setPointResult && rangeResult;
+
+    boolean success = setPointResult && rangeResult;
+    if(success) {
+      LOGGER.info("thermostat_id={} alarm_action_status={}", thermostatId, AlarmActionStatus.OK);
+      return AlarmActionStatus.OK;
+    }
+
+    LOGGER.error("thermostat_id={} set_point_result={} range_result={}", thermostatId, setPointResult, rangeResult);
+    return AlarmActionStatus.REMOTE_ERROR;
   }
 }
