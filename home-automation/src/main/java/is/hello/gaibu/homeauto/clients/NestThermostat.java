@@ -8,6 +8,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.hello.suripu.core.models.ValueRange;
 import com.hello.suripu.core.preferences.TemperatureUnit;
+import is.hello.gaibu.core.models.Capability;
 import is.hello.gaibu.core.models.Configuration;
 import is.hello.gaibu.core.models.ExpansionData;
 import is.hello.gaibu.homeauto.interceptors.HeaderInterceptor;
@@ -27,6 +28,7 @@ import retrofit2.Retrofit;
 import retrofit2.converter.jackson.JacksonConverterFactory;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -238,12 +240,27 @@ public class NestThermostat implements ControllableThermostat, HomeAutomationExp
 
     final List<Configuration> configs = Lists.newArrayList();
     for(final Map.Entry<String, Thermostat> entry : thermoMap.entrySet()) {
-      final Optional<String> structureNameOptional = getStructureName(entry.getValue().getStructureId());
-      String configName = entry.getValue().getName();
+      Thermostat thermostat = entry.getValue();
+      final Optional<String> structureNameOptional = getStructureName(thermostat.getStructureId());
+      String configName = thermostat.getName();
       if(structureNameOptional.isPresent()) {
-        configName = structureNameOptional.get() + " (" + entry.getValue().getName() + ")";
+        configName = structureNameOptional.get() + " (" + thermostat.getName() + ")";
       }
-      final Configuration groupConfig = new Configuration(entry.getKey(), configName, false);
+
+      final Thermostat.HvacMode hvacMode = thermostat.getHvac_mode();
+      List<Capability> capabilities = new ArrayList<>();
+      if(hvacMode.equals(Thermostat.HvacMode.COOL)) {
+        capabilities.add(Capability.COOL);
+      } else if(hvacMode.equals(Thermostat.HvacMode.HEAT)) {
+        capabilities.add(Capability.HEAT);
+      } else if(hvacMode.equals(Thermostat.HvacMode.HEAT_COOL)) {
+        capabilities.add(Capability.HEAT);
+        capabilities.add(Capability.COOL);
+      } else {
+        LOGGER.warn("hvac_mode={} config_name={}", hvacMode, configName);
+      }
+
+      final Configuration groupConfig = new Configuration(entry.getKey(), configName, false, capabilities);
       configs.add(groupConfig);
     }
 
@@ -255,7 +272,7 @@ public class NestThermostat implements ControllableThermostat, HomeAutomationExp
     final ObjectMapper mapper = new ObjectMapper();
     try {
       final NestExpansionDeviceData nestData = mapper.readValue(expansionData.data, NestExpansionDeviceData.class);
-      return Optional.of(new Configuration(nestData.getId(), nestData.name, true));
+      return Optional.of(new Configuration(nestData.getId(), nestData.name, true, nestData.capabilities()));
     } catch(IOException ioex) {
       return Optional.absent();
     }
@@ -314,16 +331,4 @@ public class NestThermostat implements ControllableThermostat, HomeAutomationExp
     }
     return setPointResult && rangeResult;
   }
-
-    public Boolean deAuthorize(final String accessToken) {
-        final Call<Boolean> call = service.delete(accessToken);
-        try {
-            final Response response = call.execute();
-            return response.isSuccessful();
-        } catch (IOException e) {
-            LOGGER.error("error=deauth message={}", e.getMessage());
-        }
-
-        return false;
-    }
 }
