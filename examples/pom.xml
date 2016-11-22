@@ -31,7 +31,7 @@
             <groupId>com.hello.suripu</groupId>
             <artifactId>suripu-core</artifactId>
             <version>${suripu.version}</version>
-            <scope>provided</scope>
+            <!--<scope>provided</scope>-->
         </dependency>
     </dependencies>
 </project>

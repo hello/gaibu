@@ -4,6 +4,9 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Created by jnorgan on 9/27/16.
  */
@@ -14,6 +17,7 @@ public class Configuration {
   private String id;
   private String name;
   private Boolean selected;
+  private List<Capability> capabilities = new ArrayList<>();
 
   @JsonProperty("id")
   public String getId() {
@@ -34,11 +38,20 @@ public class Configuration {
     this.selected = selected;
   }
 
+  @JsonProperty("capabilities")
+  public List<Capability> capabilities() {
+    return capabilities;
+  }
+
   @JsonCreator
-  public Configuration(@JsonProperty("id") final String id, @JsonProperty("name") final String name, @JsonProperty("selected") final Boolean selected) {
+  public Configuration(@JsonProperty("id") final String id, @JsonProperty("name") final String name,
+                       @JsonProperty("selected") final Boolean selected, @JsonProperty("capabilities") final List<Capability> capabilities) {
     this.id = id;
     this.name = name;
     this.selected = selected;
+    if(capabilities != null) {
+      this.capabilities.addAll(capabilities);
+    }
   }
 
 }

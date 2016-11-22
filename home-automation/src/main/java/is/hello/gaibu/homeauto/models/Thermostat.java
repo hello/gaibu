@@ -18,7 +18,8 @@ public class Thermostat{
     HEAT("heat"),
     COOL("cool"),
     HEAT_COOL("heat-cool"),
-    OFF("off");
+    OFF("off"),
+    ECO("eco");
 
     private final String mode;
 
