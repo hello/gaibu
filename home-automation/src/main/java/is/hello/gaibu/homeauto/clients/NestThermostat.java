@@ -247,17 +247,14 @@ public class NestThermostat implements ControllableThermostat, HomeAutomationExp
         configName = structureNameOptional.get() + " (" + thermostat.getName() + ")";
       }
 
-      final Thermostat.HvacMode hvacMode = thermostat.getHvac_mode();
-      List<Capability> capabilities = new ArrayList<>();
-      if(hvacMode.equals(Thermostat.HvacMode.COOL)) {
+      final List<Capability> capabilities = new ArrayList<>();
+
+      if(thermostat.getCan_cool()) {
         capabilities.add(Capability.COOL);
-      } else if(hvacMode.equals(Thermostat.HvacMode.HEAT)) {
+      }
+
+      if(thermostat.getCan_heat()) {
         capabilities.add(Capability.HEAT);
-      } else if(hvacMode.equals(Thermostat.HvacMode.HEAT_COOL)) {
-        capabilities.add(Capability.HEAT);
-        capabilities.add(Capability.COOL);
-      } else {
-        LOGGER.warn("hvac_mode={} config_name={}", hvacMode, configName);
       }
 
       final Configuration groupConfig = new Configuration(entry.getKey(), configName, false, capabilities);
