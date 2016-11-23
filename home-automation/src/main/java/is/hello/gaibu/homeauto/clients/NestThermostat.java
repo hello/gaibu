@@ -313,13 +313,7 @@ public class NestThermostat implements ControllableThermostat, HomeAutomationExp
       return AlarmActionStatus.OFF_OR_LOCKED;
     }
 
-    final Optional<Thermostat.HvacMode> hvacModeOptional = getMode();
-    if(!hvacModeOptional.isPresent()) {
-      LOGGER.error("error=hvac-mode-failure expansion_name=Nest");
-      return AlarmActionStatus.INVALID_HVAC;
-    }
-
-    final Thermostat.HvacMode hvacMode = hvacModeOptional.get();
+    final Thermostat.HvacMode hvacMode = thermostatOptional.get().getHvac_mode();
     Boolean rangeResult = true;
     Boolean setPointResult = true;
 
