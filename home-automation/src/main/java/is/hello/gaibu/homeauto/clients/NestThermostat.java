@@ -301,6 +301,18 @@ public class NestThermostat implements ControllableThermostat, HomeAutomationExp
     final Integer minTempInUnits = (unit == TemperatureUnit.FAHRENHEIT) ? NEST_MIN_TEMP_F : NEST_MIN_TEMP_C;
     final Integer maxTempInUnits = (unit == TemperatureUnit.FAHRENHEIT) ? NEST_MAX_TEMP_F : NEST_MAX_TEMP_C;
 
+    final Optional<Thermostat> thermostatOptional = getThermostat();
+    if(!thermostatOptional.isPresent()) {
+      LOGGER.error("error=no-thermostat expansion_name=Nest");
+      return AlarmActionStatus.NOT_FOUND;
+    }
+
+    final boolean isLocked = thermostatOptional.get().getIs_locked();
+    if(isLocked) {
+      LOGGER.warn("thermostat_id={} status=is_locked", thermostatId);
+      return AlarmActionStatus.OFF_OR_LOCKED;
+    }
+
     final Optional<Thermostat.HvacMode> hvacModeOptional = getMode();
     if(!hvacModeOptional.isPresent()) {
       LOGGER.error("error=hvac-mode-failure expansion_name=Nest");

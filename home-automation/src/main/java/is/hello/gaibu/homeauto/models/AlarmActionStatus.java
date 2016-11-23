@@ -6,5 +6,6 @@ public enum AlarmActionStatus {
     OFF_OR_LOCKED,
     INVALID_HVAC,
     INVALID_TEMP_RANGE,
-    UNKOWN
+    UNKOWN,
+    NOT_FOUND;
 }
