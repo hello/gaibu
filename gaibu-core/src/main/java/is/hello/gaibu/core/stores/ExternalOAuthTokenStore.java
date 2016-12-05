@@ -3,6 +3,7 @@ package is.hello.gaibu.core.stores;
 import com.google.common.base.Optional;
 
 import is.hello.gaibu.core.exceptions.InvalidExternalTokenException;
+import is.hello.gaibu.core.models.Expansion;
 
 public interface ExternalOAuthTokenStore<T> {
 
@@ -16,6 +17,10 @@ public interface ExternalOAuthTokenStore<T> {
 
     void disableByDeviceId(String deviceId, Long appId);
 
+    void disableAllByDeviceId(String deviceId);
+
     void disableByRefreshToken(String refreshToken);
+
+    Optional<String> getDecryptedExternalToken(String deviceId, Expansion expansion, Boolean isRefreshToken);
 
 }
