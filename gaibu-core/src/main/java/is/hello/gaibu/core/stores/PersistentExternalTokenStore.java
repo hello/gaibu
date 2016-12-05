@@ -106,6 +106,7 @@ public class PersistentExternalTokenStore implements ExternalOAuthTokenStore<Ext
                 final Optional<String> decryptedTokenOptional = getDecryptedExternalToken(deviceId, expansion, false);
                 if(!decryptedTokenOptional.isPresent()) {
                     LOGGER.warn("action=deauth-nest result=fail-to-decrypt-token device_id={}", deviceId);
+                    return;
                 }
 
                 final String decryptedToken = decryptedTokenOptional.get();
