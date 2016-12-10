@@ -26,8 +26,11 @@ import is.hello.gaibu.homeauto.interceptors.PathParamsInterceptor;
 import is.hello.gaibu.homeauto.interfaces.ControllableThermostat;
 import is.hello.gaibu.homeauto.interfaces.HomeAutomationExpansion;
 import is.hello.gaibu.homeauto.models.AlarmActionStatus;
+import is.hello.gaibu.homeauto.models.ConfigurationResponse;
 import is.hello.gaibu.homeauto.models.NestExpansionDeviceData;
+import is.hello.gaibu.homeauto.models.ResponseStatus;
 import is.hello.gaibu.homeauto.models.Thermostat;
+import is.hello.gaibu.homeauto.models.ThermostatResponse;
 import is.hello.gaibu.homeauto.services.NestService;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -202,22 +205,28 @@ public class NestThermostat implements ControllableThermostat, HomeAutomationExp
     return Optional.absent();
   }
 
-  public Optional<Map<String, Thermostat>> getThermostats() {
+  public ThermostatResponse getThermostats() {
     final Call<Map<String, Thermostat>> groupRequest = service.getThermostats();
     try {
       final Response<Map<String, Thermostat>> response = groupRequest.execute();
       if(response.isSuccessful()) {
         final Map<String, Thermostat> groupsMap = response.body();
         if(groupsMap.isEmpty()){
-          return Optional.absent();
+          return new ThermostatResponse.Builder().withStatus(ResponseStatus.UNKNOWN_FAILURE).build();
         }
-        return Optional.of(groupsMap);
+        return new ThermostatResponse.Builder()
+            .withStatus(ResponseStatus.OK)
+            .withThermostats(groupsMap)
+            .build();
+      }
+      if(response.code() == 401) {
+        return new ThermostatResponse.Builder().withStatus(ResponseStatus.UNAUTHORIZED).build();
       }
     } catch (IOException e) {
       LOGGER.error("error=hue-get-groups msg={}", e.getMessage());
     }
 
-    return Optional.absent();
+    return new ThermostatResponse.Builder().withStatus(ResponseStatus.UNKNOWN_FAILURE).build();
   }
 
   public Optional<String> getStructureName(final String structureId) {
@@ -236,13 +245,14 @@ public class NestThermostat implements ControllableThermostat, HomeAutomationExp
   }
 
   @Override
-  public Optional<List<Configuration>> getConfigurations() {
-    final Optional<Map<String, Thermostat>> configsMapOptional = getThermostats();
-    if(!configsMapOptional.isPresent()) {
+  public ConfigurationResponse getConfigurations() {
+    final ThermostatResponse thermoMapResponse = getThermostats();
+    if(ResponseStatus.OK != thermoMapResponse.getStatus()) {
       LOGGER.error("error=get-configs-failure expansion_name=Nest");
-      return Optional.absent();
+      return new ConfigurationResponse.Builder().withStatus(thermoMapResponse.getStatus()).build();
     }
-    final Map<String, Thermostat> thermoMap = configsMapOptional.get();
+
+    final Map<String, Thermostat> thermoMap = thermoMapResponse.getThermostats();
 
     final List<Configuration> configs = Lists.newArrayList();
     for(final Map.Entry<String, Thermostat> entry : thermoMap.entrySet()) {
@@ -267,7 +277,10 @@ public class NestThermostat implements ControllableThermostat, HomeAutomationExp
       configs.add(groupConfig);
     }
 
-    return Optional.of(configs);
+    return new ConfigurationResponse.Builder()
+        .withStatus(ResponseStatus.OK)
+        .withConfigurations(configs)
+        .build();
   }
 
   @Override
