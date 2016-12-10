@@ -31,6 +31,9 @@ public interface ExternalTokenDAO {
     @SqlQuery("SELECT count(*) FROM external_oauth_tokens WHERE device_id = :device_id AND app_id = :application_id")
     Integer getTokenCount(@Bind("device_id") String deviceId, @Bind("application_id") Long applicationId);
 
+    @SqlQuery("SELECT count(*) FROM external_oauth_tokens WHERE device_id = :device_id AND app_id = :application_id AND access_expires_in > 0")
+    Integer getActiveTokenCount(@Bind("device_id") String deviceId, @Bind("application_id") Long applicationId);
+
     @SqlUpdate("INSERT INTO external_oauth_tokens (access_token, refresh_token, access_expires_in, refresh_expires_in, app_id, device_id) VALUES (:access_token, :refresh_token, :access_expires_in, :refresh_expires_in, :app_id, :device_id)")
     void storeExternalToken(@BindExternalToken ExternalToken externalToken);
 

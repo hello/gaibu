@@ -13,6 +13,8 @@ public interface ExternalOAuthTokenStore<T> {
 
     Integer getTokenCount(String deviceId, Long appId);
 
+    Integer getActiveTokenCount(String deviceId, Long appId);
+
     void disable(T accessToken);
 
     void disableByDeviceId(String deviceId, Long appId);

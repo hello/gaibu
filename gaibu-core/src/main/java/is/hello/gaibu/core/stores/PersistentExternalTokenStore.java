@@ -87,6 +87,12 @@ public class PersistentExternalTokenStore implements ExternalOAuthTokenStore<Ext
     }
 
     @Override
+    public Integer getActiveTokenCount(final String deviceId, final Long appId) {
+        return externalTokenDAO.getActiveTokenCount(deviceId, appId);
+    }
+
+
+    @Override
     public void disable(final ExternalToken externalToken) {
         externalTokenDAO.disable(externalToken.accessToken);
     }

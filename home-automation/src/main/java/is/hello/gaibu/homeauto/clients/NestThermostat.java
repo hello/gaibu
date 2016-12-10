@@ -1,13 +1,23 @@
 package is.hello.gaibu.homeauto.clients;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hello.suripu.core.models.ValueRange;
 import com.hello.suripu.core.preferences.TemperatureUnit;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 import is.hello.gaibu.core.models.Capability;
 import is.hello.gaibu.core.models.Configuration;
 import is.hello.gaibu.core.models.ExpansionData;
@@ -21,17 +31,10 @@ import is.hello.gaibu.homeauto.models.Thermostat;
 import is.hello.gaibu.homeauto.services.NestService;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import retrofit2.Call;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.jackson.JacksonConverterFactory;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 
 /**
@@ -233,11 +236,11 @@ public class NestThermostat implements ControllableThermostat, HomeAutomationExp
   }
 
   @Override
-  public List<Configuration> getConfigurations() {
+  public Optional<List<Configuration>> getConfigurations() {
     final Optional<Map<String, Thermostat>> configsMapOptional = getThermostats();
     if(!configsMapOptional.isPresent()) {
       LOGGER.error("error=get-configs-failure expansion_name=Nest");
-      return Lists.newArrayList();
+      return Optional.absent();
     }
     final Map<String, Thermostat> thermoMap = configsMapOptional.get();
 
@@ -264,7 +267,7 @@ public class NestThermostat implements ControllableThermostat, HomeAutomationExp
       configs.add(groupConfig);
     }
 
-    return configs;
+    return Optional.of(configs);
   }
 
   @Override

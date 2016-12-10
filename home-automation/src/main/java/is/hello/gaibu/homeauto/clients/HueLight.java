@@ -1,12 +1,22 @@
 package is.hello.gaibu.homeauto.clients;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hello.suripu.core.models.ValueRange;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+
 import is.hello.gaibu.core.models.Configuration;
 import is.hello.gaibu.core.models.ExpansionData;
 import is.hello.gaibu.homeauto.interceptors.HeaderInterceptor;
@@ -20,17 +30,10 @@ import is.hello.gaibu.homeauto.models.HueLightState;
 import is.hello.gaibu.homeauto.models.HueScene;
 import is.hello.gaibu.homeauto.services.HueService;
 import okhttp3.OkHttpClient;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import retrofit2.Call;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.jackson.JacksonConverterFactory;
-
-import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 
 /**
@@ -258,10 +261,10 @@ public class HueLight implements ColoredLight, HomeAutomationExpansion {
   }
 
   @Override
-  public List<Configuration> getConfigurations() {
+  public Optional<List<Configuration>> getConfigurations() {
     final Optional<Map<String, HueGroup>> optionalGroupsMap = getGroups();
     if(!optionalGroupsMap.isPresent()) {
-      return Lists.newArrayList();
+      return Optional.absent();
     }
 
     final Map<String, HueGroup> groupsMap = optionalGroupsMap.get();
@@ -271,7 +274,7 @@ public class HueLight implements ColoredLight, HomeAutomationExpansion {
       final Configuration groupConfig = new Configuration(entry.getKey(), entry.getValue().name, false, Lists.newArrayList());
       configs.add(groupConfig);
     }
-    return configs;
+    return Optional.of(configs);
   }
 
   @Override
