@@ -24,10 +24,13 @@ import is.hello.gaibu.homeauto.interceptors.PathParamsInterceptor;
 import is.hello.gaibu.homeauto.interfaces.ColoredLight;
 import is.hello.gaibu.homeauto.interfaces.HomeAutomationExpansion;
 import is.hello.gaibu.homeauto.models.AlarmActionStatus;
+import is.hello.gaibu.homeauto.models.ConfigurationResponse;
+import is.hello.gaibu.homeauto.models.GroupsResponse;
 import is.hello.gaibu.homeauto.models.HueExpansionDeviceData;
 import is.hello.gaibu.homeauto.models.HueGroup;
 import is.hello.gaibu.homeauto.models.HueLightState;
 import is.hello.gaibu.homeauto.models.HueScene;
+import is.hello.gaibu.homeauto.models.ResponseStatus;
 import is.hello.gaibu.homeauto.services.HueService;
 import okhttp3.OkHttpClient;
 import retrofit2.Call;
@@ -213,16 +216,19 @@ public class HueLight implements ColoredLight, HomeAutomationExpansion {
     return Optional.absent();
   }
 
-  public Optional<Map<String, HueGroup>> getGroups() {
+  public GroupsResponse getGroups() {
     final Call<Map<String, HueGroup>> groupRequest = service.getGroups();
     try {
       final Response<Map<String, HueGroup>> response = groupRequest.execute();
       if(response.isSuccessful()) {
         final Map<String, HueGroup> groupsMap = response.body();
         if(groupsMap.isEmpty()){
-          return Optional.absent();
+          return new GroupsResponse.Builder().withStatus(ResponseStatus.UNKNOWN_FAILURE).build();
         }
-        return Optional.of(groupsMap);
+        return new GroupsResponse.Builder()
+            .withStatus(ResponseStatus.OK)
+            .withGroups(groupsMap)
+            .build();
       }
 
       LOGGER.error("error=get-groups-failure response_code={} bridge_id={}", response.code(), bridgeId);
@@ -232,14 +238,14 @@ public class HueLight implements ColoredLight, HomeAutomationExpansion {
         if(response.errorBody().string().contains("access_token_expired")) {
           //Attempt token refresh
           LOGGER.error("error=token-expired bridge_id={}", bridgeId);
-          return Optional.absent();
+          return new GroupsResponse.Builder().withStatus(ResponseStatus.UNAUTHORIZED).build();
         }
       }
     } catch (IOException e) {
       LOGGER.error("error=hue-get-groups msg={} bridge_id={}", e.getMessage(), bridgeId);
     }
 
-    return Optional.absent();
+    return new GroupsResponse.Builder().withStatus(ResponseStatus.UNKNOWN_FAILURE).build();
   }
 
   public Optional<Map<String, HueScene>> getScenes() {
@@ -261,20 +267,23 @@ public class HueLight implements ColoredLight, HomeAutomationExpansion {
   }
 
   @Override
-  public Optional<List<Configuration>> getConfigurations() {
-    final Optional<Map<String, HueGroup>> optionalGroupsMap = getGroups();
-    if(!optionalGroupsMap.isPresent()) {
-      return Optional.absent();
+  public ConfigurationResponse getConfigurations() {
+    final GroupsResponse groupsResponse = getGroups();
+    if(ResponseStatus.OK != groupsResponse.getStatus()) {
+      return new ConfigurationResponse.Builder().withStatus(groupsResponse.getStatus()).build();
     }
 
-    final Map<String, HueGroup> groupsMap = optionalGroupsMap.get();
+    final Map<String, HueGroup> groupsMap = groupsResponse.getGroups();
 
     final List<Configuration> configs = Lists.newArrayList();
     for(final Map.Entry<String, HueGroup> entry : groupsMap.entrySet()) {
       final Configuration groupConfig = new Configuration(entry.getKey(), entry.getValue().name, false, Lists.newArrayList());
       configs.add(groupConfig);
     }
-    return Optional.of(configs);
+    return new ConfigurationResponse.Builder()
+        .withStatus(ResponseStatus.OK)
+        .withConfigurations(configs)
+        .build();
   }
 
   @Override
