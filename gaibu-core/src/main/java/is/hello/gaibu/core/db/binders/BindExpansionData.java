@@ -1,6 +1,7 @@
 package is.hello.gaibu.core.db.binders;
 
 
+import is.hello.gaibu.core.models.ExpansionData;
 import org.skife.jdbi.v2.SQLStatement;
 import org.skife.jdbi.v2.sqlobject.Binder;
 import org.skife.jdbi.v2.sqlobject.BinderFactory;
@@ -11,8 +12,6 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-
-import is.hello.gaibu.core.models.ExpansionData;
 
 @BindingAnnotation(BindExpansionData.JsonBinderFactory.class)
 @Retention(RetentionPolicy.RUNTIME)
@@ -29,6 +28,7 @@ public @interface BindExpansionData {
                         q.bind("device_id", arg.deviceId);
                         q.bind("app_id", arg.appId);
                         q.bind("enabled", arg.enabled);
+                        q.bind("account_id", arg.accountId.orNull());
                 }
             };
         }

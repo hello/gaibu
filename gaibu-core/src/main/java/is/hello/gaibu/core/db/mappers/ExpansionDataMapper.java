@@ -1,6 +1,7 @@
 package is.hello.gaibu.core.db.mappers;
 
 
+import is.hello.gaibu.core.models.ExpansionData;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.skife.jdbi.v2.StatementContext;
@@ -8,8 +9,6 @@ import org.skife.jdbi.v2.tweak.ResultSetMapper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-
-import is.hello.gaibu.core.models.ExpansionData;
 
 public class ExpansionDataMapper implements ResultSetMapper<ExpansionData> {
     @Override
@@ -22,7 +21,8 @@ public class ExpansionDataMapper implements ResultSetMapper<ExpansionData> {
             r.getString("data"),
             new DateTime(r.getTimestamp("created_at"), DateTimeZone.UTC),
             new DateTime(r.getTimestamp("updated_at"), DateTimeZone.UTC),
-            r.getBoolean("enabled")
+            r.getBoolean("enabled"),
+            r.getLong("account_id")
         );
     }
 }

@@ -20,10 +20,10 @@ public interface ExpansionDataDAO {
     @SqlQuery("SELECT * FROM expansion_data WHERE app_id = :application_id AND device_id = :device_id ORDER BY created_at DESC LIMIT 1")
     Optional<ExpansionData> getAppData(@Bind("application_id") Long applicationId, @Bind("device_id") String deviceId);
 
-    @SqlUpdate("INSERT INTO expansion_data (app_id, device_id, data, enabled) VALUES (:app_id, :device_id, :data, :enabled)")
+    @SqlUpdate("INSERT INTO expansion_data (app_id, device_id, data, enabled, account_id) VALUES (:app_id, :device_id, :data, :enabled, :account_id)")
     void insertAppData(@BindExpansionData ExpansionData appData);
 
-    @SqlUpdate("UPDATE expansion_data SET data = :data, enabled = :enabled WHERE app_id = :app_id AND device_id = :device_id")
+    @SqlUpdate("UPDATE expansion_data SET data = :data, enabled = :enabled, account_id = :account_id WHERE app_id = :app_id AND device_id = :device_id")
     void updateAppData(@BindExpansionData ExpansionData appData);
 
 }
