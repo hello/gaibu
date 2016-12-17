@@ -50,7 +50,7 @@ public class ExpansionData {
         this.created = created;
         this.updated = updated;
         this.enabled = enabled;
-        this.accountId = Optional.of(accountId);
+        this.accountId = Optional.fromNullable(accountId);
     }
 
     public static class Builder {
