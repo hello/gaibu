@@ -1,9 +1,11 @@
 package is.hello.gaibu.core.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-
+import com.google.common.base.Optional;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
+
 
 public class ExpansionData {
 
@@ -28,6 +30,9 @@ public class ExpansionData {
     @JsonProperty("enabled")
     public final Boolean enabled;
 
+    @JsonIgnore
+    public final Optional<Long> accountId;
+
     public ExpansionData(
             final Long id,
             final Long appId,
@@ -35,7 +40,8 @@ public class ExpansionData {
             final String data,
             final DateTime created,
             final DateTime updated,
-            final Boolean enabled
+            final Boolean enabled,
+            final Long accountId
     ) {
         this.id = id;
         this.appId = appId;
@@ -44,6 +50,7 @@ public class ExpansionData {
         this.created = created;
         this.updated = updated;
         this.enabled = enabled;
+        this.accountId = Optional.fromNullable(accountId);
     }
 
     public static class Builder {
@@ -54,6 +61,7 @@ public class ExpansionData {
         private DateTime created;
         private DateTime updated;
         private Boolean enabled;
+        private Long accountId;
 
         public Builder() {
             created = DateTime.now(DateTimeZone.UTC);
@@ -85,8 +93,13 @@ public class ExpansionData {
             return this;
         }
 
+        public Builder withAccountId(final Long accountId) {
+            this.accountId = accountId;
+            return this;
+        }
+
         public ExpansionData build() {
-            return new ExpansionData(id, appId, deviceId, data, created, updated, enabled);
+            return new ExpansionData(id, appId, deviceId, data, created, updated, enabled, accountId);
         }
     }
 }
