@@ -14,6 +14,8 @@ public class ExpansionDataMapper implements ResultSetMapper<ExpansionData> {
     @Override
     public ExpansionData map(int index, ResultSet r, StatementContext ctx) throws SQLException {
 
+        final Long accountId = r.getLong("account_id");
+        final Long pairedAccountId =  accountId == 0 ? null : accountId;
         return new ExpansionData(
             r.getLong("id"),
             r.getLong("app_id"),
@@ -22,7 +24,7 @@ public class ExpansionDataMapper implements ResultSetMapper<ExpansionData> {
             new DateTime(r.getTimestamp("created_at"), DateTimeZone.UTC),
             new DateTime(r.getTimestamp("updated_at"), DateTimeZone.UTC),
             r.getBoolean("enabled"),
-            r.getLong("account_id")
+            pairedAccountId
         );
     }
 }
