@@ -334,6 +334,8 @@ public class NestThermostat implements ControllableThermostat, HomeAutomationExp
     Boolean setPointResult = true;
 
     LOGGER.info("thermostat_id={} hvac_mode={}", thermostatId, hvacMode);
+    final Integer setPoint = valueRange.min + valueRange.max / 2;
+
     switch(hvacMode){
       case HEAT_COOL:
       case ECO: //Don't actually know if this is valid yet
@@ -346,15 +348,14 @@ public class NestThermostat implements ControllableThermostat, HomeAutomationExp
           LOGGER.error("error=value-range-too-high hvac_mode={} value_range_min={} max_temp_units={}", hvacMode, valueRange.min, maxTempInUnits);
           return AlarmActionStatus.INVALID_TEMP_RANGE;
         }
-
-        setPointResult = setTargetTemperature(Math.max(minTempInUnits, Math.min(maxTempInUnits, valueRange.min)), unit);
+        setPointResult = setTargetTemperature(Math.max(minTempInUnits, Math.min(maxTempInUnits, setPoint)), unit);
         break;
       case COOL:
         if(valueRange.max < minTempInUnits) {
           LOGGER.error("error=value-range-too-high hvac_mode={} value_range_max={} min_temp_units={}", hvacMode, valueRange.max, minTempInUnits);
           return AlarmActionStatus.INVALID_TEMP_RANGE;
         }
-        setPointResult = setTargetTemperature(Math.max(minTempInUnits, Math.min(maxTempInUnits, valueRange.max)), unit);
+        setPointResult = setTargetTemperature(Math.max(minTempInUnits, Math.min(maxTempInUnits, setPoint)), unit);
         break;
       case OFF:
         return AlarmActionStatus.OFF_OR_LOCKED;
