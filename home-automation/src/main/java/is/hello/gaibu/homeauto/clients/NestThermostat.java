@@ -334,7 +334,7 @@ public class NestThermostat implements ControllableThermostat, HomeAutomationExp
     Boolean setPointResult = true;
 
     LOGGER.info("thermostat_id={} hvac_mode={}", thermostatId, hvacMode);
-    final Integer setPoint = valueRange.min + valueRange.max / 2;
+    final Integer setPoint = (valueRange.min + valueRange.max) / 2;
 
     switch(hvacMode){
       case HEAT_COOL:
