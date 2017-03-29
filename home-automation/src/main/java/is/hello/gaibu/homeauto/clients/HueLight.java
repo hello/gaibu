@@ -319,7 +319,7 @@ public class HueLight implements ColoredLight, HomeAutomationExpansion {
   public AlarmActionStatus runAlarmAction(final ValueRange valueRange) {
     //clamp the brightness value
     final Integer brightnessValue = Math.max(HUE_MIN_BRIGHTNESS, Math.min(HUE_MAX_BRIGHTNESS, valueRange.min));
-    final boolean prepResult = setLightState(false);
+    final boolean prepResult = setLightState(false, 0, 0);
     if(!prepResult) {
       return AlarmActionStatus.REMOTE_ERROR;
     }
