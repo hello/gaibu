@@ -147,10 +147,10 @@ public class HueLight implements ColoredLight, HomeAutomationExpansion {
     //Translate from displayed values to actual
     final Integer convertedBrightness = convertDisplayedToRealBrightness(brightness);
     final Map<String, Object> data = Maps.newHashMap();
-    data.put("on", isOn);
     data.put("bri", convertedBrightness);
     //transitionTime is in DeciSeconds
     data.put("transitiontime", transitionTimeSecs * 10);
+    data.put("on", isOn);
 
     final Optional<List<Map<String, Map<String, String>>>> responseMap = setStateValues(data);
     return responseMap.isPresent();
