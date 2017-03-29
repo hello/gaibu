@@ -147,10 +147,10 @@ public class HueLight implements ColoredLight, HomeAutomationExpansion {
     //Translate from displayed values to actual
     final Integer convertedBrightness = convertDisplayedToRealBrightness(brightness);
     final Map<String, Object> data = Maps.newHashMap();
-    data.put("on", isOn);
     data.put("bri", convertedBrightness);
     //transitionTime is in DeciSeconds
     data.put("transitiontime", transitionTimeSecs * 10);
+    data.put("on", isOn);
 
     final Optional<List<Map<String, Map<String, String>>>> responseMap = setStateValues(data);
     return responseMap.isPresent();
@@ -277,8 +277,11 @@ public class HueLight implements ColoredLight, HomeAutomationExpansion {
 
     final List<Configuration> configs = Lists.newArrayList();
     for(final Map.Entry<String, HueGroup> entry : groupsMap.entrySet()) {
-      final Configuration groupConfig = new Configuration(entry.getKey(), entry.getValue().name, false, Lists.newArrayList());
-      configs.add(groupConfig);
+      final HueGroup group = entry.getValue();
+      if(group.type.equals("Room")) {
+        final Configuration groupConfig = new Configuration(entry.getKey(), group.name, false, Lists.newArrayList());
+        configs.add(groupConfig);
+      }
     }
     return new ConfigurationResponse.Builder()
         .withStatus(ResponseStatus.OK)
@@ -304,6 +307,10 @@ public class HueLight implements ColoredLight, HomeAutomationExpansion {
 
   @Override
   public AlarmActionStatus runDefaultAlarmAction() {
+    final boolean prepResult = setLightState(true, 0, HUE_MIN_BRIGHTNESS);
+    if(!prepResult) {
+      return AlarmActionStatus.REMOTE_ERROR;
+    }
     final boolean success = setLightState(true, DEFAULT_BUFFER_TIME_SECONDS);
     if(success) {
       return AlarmActionStatus.OK;
@@ -316,6 +323,10 @@ public class HueLight implements ColoredLight, HomeAutomationExpansion {
   public AlarmActionStatus runAlarmAction(final ValueRange valueRange) {
     //clamp the brightness value
     final Integer brightnessValue = Math.max(HUE_MIN_BRIGHTNESS, Math.min(HUE_MAX_BRIGHTNESS, valueRange.min));
+    final boolean prepResult = setLightState(true, 0, HUE_MIN_BRIGHTNESS);
+    if(!prepResult) {
+      return AlarmActionStatus.REMOTE_ERROR;
+    }
     final boolean success = setLightState(true, DEFAULT_BUFFER_TIME_SECONDS, brightnessValue);
     if(success) {
       return AlarmActionStatus.OK;
