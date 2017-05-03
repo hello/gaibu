@@ -58,8 +58,8 @@ public class HueLight implements ColoredLight, HomeAutomationExpansion {
   public static Integer HUE_API_MAX_BRIGHTNESS = 254;
   public static Integer HUE_MIN_BRIGHTNESS = 1;
   public static Integer HUE_MAX_BRIGHTNESS = 100;
-  public static Integer HUE_MIN_COLORTEMP = 500; //Reddest color
-  public static Integer HUE_MAX_COLORTEMP = 153; //Bluest color
+  public static Integer HUE_MIN_COLORTEMP = 500; //Reddest color (2000K)
+  public static Integer HUE_MAX_COLORTEMP = 153; //Bluest color (6500K)
 
   public HueLight(final HueService service, final String appName, final String bridgeId) {
     this.service = service;
