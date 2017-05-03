@@ -58,6 +58,8 @@ public class HueLight implements ColoredLight, HomeAutomationExpansion {
   public static Integer HUE_API_MAX_BRIGHTNESS = 254;
   public static Integer HUE_MIN_BRIGHTNESS = 1;
   public static Integer HUE_MAX_BRIGHTNESS = 100;
+  public static Integer HUE_MIN_COLORTEMP = 500; //Reddest color (2000K)
+  public static Integer HUE_MAX_COLORTEMP = 153; //Bluest color (6500K)
 
   public HueLight(final HueService service, final String appName, final String bridgeId) {
     this.service = service;
@@ -142,8 +144,7 @@ public class HueLight implements ColoredLight, HomeAutomationExpansion {
     return responseMap.isPresent();
   }
 
-  public Boolean setLightState(final Boolean isOn, final Integer transitionTimeSecs, final Integer brightness) {
-
+  public Boolean setLightState(final Boolean isOn, final Integer transitionTimeSecs, final Integer brightness, final Optional<Integer> colorTemp) {
     //Translate from displayed values to actual
     final Integer convertedBrightness = convertDisplayedToRealBrightness(brightness);
     final Map<String, Object> data = Maps.newHashMap();
@@ -152,8 +153,16 @@ public class HueLight implements ColoredLight, HomeAutomationExpansion {
     data.put("transitiontime", transitionTimeSecs * 10);
     data.put("on", isOn);
 
+    if(colorTemp.isPresent()) {
+      data.put("ct", colorTemp.get());
+    }
+
     final Optional<List<Map<String, Map<String, String>>>> responseMap = setStateValues(data);
     return responseMap.isPresent();
+  }
+
+  public Boolean setLightState(final Boolean isOn, final Integer transitionTimeSecs, final Integer brightness) {
+    return setLightState(isOn, transitionTimeSecs, brightness, Optional.absent());
   }
 
   public Boolean setLightState(final Boolean isOn){
@@ -323,11 +332,11 @@ public class HueLight implements ColoredLight, HomeAutomationExpansion {
   public AlarmActionStatus runAlarmAction(final ValueRange valueRange) {
     //clamp the brightness value
     final Integer brightnessValue = Math.max(HUE_MIN_BRIGHTNESS, Math.min(HUE_MAX_BRIGHTNESS, valueRange.min));
-    final boolean prepResult = setLightState(true, 0, HUE_MIN_BRIGHTNESS);
+    final boolean prepResult = setLightState(true, 0, HUE_MIN_BRIGHTNESS, Optional.of(HUE_MIN_COLORTEMP)); //Start warm
     if(!prepResult) {
       return AlarmActionStatus.REMOTE_ERROR;
     }
-    final boolean success = setLightState(true, DEFAULT_BUFFER_TIME_SECONDS, brightnessValue);
+    final boolean success = setLightState(true, DEFAULT_BUFFER_TIME_SECONDS, brightnessValue, Optional.of(HUE_MAX_COLORTEMP)); //Transition to cool color
     if(success) {
       return AlarmActionStatus.OK;
     }
